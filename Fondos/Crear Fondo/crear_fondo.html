@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="crear_fondo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>LegacyBank - Crear Fondo</title>
+</head>
+<body>
+    <div class="container__principal">
+        <!-- Menu Lateral -->
+         <aside class="menu__lateral">
+            <div class="menu__top">
+                <div class="container__logo">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                </div>
+                <nav class="nav"> 
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
+
+                    <a href="/Fondos/fondos.html" class="active"><i class="fas fa-piggy-bank"></i>Fondos</a>
+
+                    <a href="/Participantes/Gestion_Participantes/gestion_participantes.html"><i class="fas fa-users"></i>Participantes</a>
+
+                    <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html"><i class="fas fa-money-bill-wave"></i>Ahorros</a>
+
+                    <a href="/Prestamos/Gestionar_Prestamos/gestion_prestamos.html"><i class="fas fa-handshake"></i>Préstamos</a>
+
+                    <a href="/Moras/moras_ahorros/moras_ahorros.html"><i class="fa-regular fa-clock"></i>Pagos de Mora</a>
+
+                    <a href="/Informes/Ahorros/informes_ahorros.html"><i class="fas fa-chart-line"></i>Informes</a>
+                </nav>
+
+            </div>
+            <div class="config">
+                <a href="/Configuracion/configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a>
+            </div>
+        </aside>
+        <!-- Main Panel -->
+         <main class="main__panel">
+            <header class="header">
+                <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <section class="dashboard">
+                <h1 class="dashboard__titulo">Crear Nuevo Fondo</h1>
+                <div class="nav__atras">
+                    <button class="atras" id="btnAtras">← Atras</button>
+                </div>
+                <div class="container__form">
+                    <form class="form__nuevo-fondo">
+                        <div class="datos__nuevo-fondo">
+                            <label class="label__nuevo-fondo">Nombre Fondo</label>
+                            <input class="input__nuevo-fondo" type="text" placeholder="2025" id="nombreFondo">
+                        </div>
+                        <div class="datos__nuevo-fondo">
+                            <label class="label__nuevo-fondo">Tasa Interes Socio</label>
+                            <input class="input__nuevo-fondo" type="text" placeholder="2%" id="tasaInteresSocio">
+                        </div>
+                        <div class="datos__nuevo-fondo">
+                            <label class="label__nuevo-fondo">Tasa Interes Externo</label>
+                            <input class="input__nuevo-fondo" type="text" placeholder="5%" id="tasaInteresExterno">
+                        </div>
+                        <div class="datos__nuevo-fondo">
+                            <label class="label__nuevo-fondo">Valor Puesto Completo</label>
+                            <input class="input__nuevo-fondo" type="number" placeholder="130000" id="vPuestoCompleto" required>
+                        </div>
+                        <p class="msg__nuevo-fondo">Las fecha de pago son del 1 al 10 de cada mes</p>
+                        <div class="actual__nuevo-fondo">
+                            <input type="checkbox" id="marcarActual">
+                            <p class="actual__parrafo">Marcar como Fondo Actual</p>
+                        </div>
+                        <div class="container__boton">
+                            <button type="button" class="boton__nuevo-fondo" id="btnCrearFondo">Crear Fondo</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+         </main>
+    </div>
+    <script src="crear_fondo.js"></script>
+</body>
+</html>

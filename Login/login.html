@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="login.css">
+    <title>LegacyBank - Login</title>
+</head>
+<body>
+    <div class="login__contenedor">
+        
+        <!-- Bloque de recuperar contraseña (antes del form) -->
+        <div class="recuperar-contrasena oculto" id="recuperarContrasena">
+            <h3>Recuperar Contraseña</h3>
+            <div class="container__recuperar-datos">
+                <label for="correoRecuperar" class="labelRecuperar">Correo electrónico</label>
+                <input type="email" id="correoRecuperar" required class="inputRecuperar">
+            </div>
+            <div class="container__recuperar-datos">
+                <label for="fondoRecuperar" class="labelRecuperar">¿Cuál es el fondo actual?</label>
+                <select id="fondoRecuperar" class="inputRecuperar">
+                    <option disabled selected>Cargando fondo actual...</option>
+                </select>
+            </div>
+            <button id="verificarIdentidad" class="buttonVerificar">Verificar Identidad</button>
+
+            <div class="formNuevaContrasena" id="formNuevaContrasena" style="display: none; margin-top: 15px;">
+                <div class="container__recuperar-datos">
+                    <label for="nuevaContrasena">Nueva contraseña</label>
+                    <input type="password" id="nuevaContrasena" class="inputRecuperar">
+                </div>
+
+                <div class="container__recuperar-datos">
+                    <label for="confirmarContrasena">Confirmar contraseña</label>
+                    <input type="password" id="confirmarContrasena" class="inputRecuperar">
+                </div>
+
+                <button id="btnActualizarContrasena" class="buttonActualizarCont">Actualizar Contraseña</button>
+            </div>
+            <a href="#" id="volverLogin" class="login__link">← Volver al inicio de sesión</a>
+        </div>
+
+        <!-- Formulario de login -->
+        <form class="login__formulario" id="formularioLogin">
+            <img src="../imagenes/Nombre.png" alt="Logo Nombre" class="login__logo">
+            <div class="container__datos">
+                <label class="login__label">Correo Electronico</label>
+                <input class="login__input" type="email" placeholder="ejemplo@gmailcom" id="inputCorreo">
+            </div>
+            <div class="container__datos">
+                <label class="login__label">Contraseña</label>
+                <input class="login__input" type="password" placeholder="Contraseña" id="inputContrasena">
+            </div>
+            <button class="login__button iniciar-sesion" id="btnIniciarSesion">Iniciar Sesión</button>
+            <a href="#" class="login__link" id="olvideContrasena">¿Olvido su contraseña?</a>
+        </form>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html>

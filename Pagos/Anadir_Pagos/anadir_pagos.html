@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="anadir_pagos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>LegacyBank - Añadir Pagos</title>
+</head>
+<body>
+    <div class="container__principal">
+        <!-- Menu Lateral -->
+         <aside class="menu__lateral">
+            <div class="menu__top">
+                <div class="container__logo">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                </div>
+                <nav class="nav"> 
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
+
+                    <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i>Fondos</a>
+
+                    <a href="/Participantes/Gestion_Participantes/gestion_participantes.html"><i class="fas fa-users"></i>Participantes</a>
+
+                    <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html" class="active"><i class="fas fa-money-bill-wave"></i>Ahorros</a>
+
+                    <a href="/Prestamos/Gestionar_Prestamos/gestion_prestamos.html"><i class="fas fa-handshake"></i>Préstamos</a>
+
+                    <a href="/Moras/moras_ahorros/moras_ahorros.html"><i class="fa-regular fa-clock"></i>Pagos de Mora</a>
+
+                    <a href="/Informes/Ahorros/informes_ahorros.html"><i class="fas fa-chart-line"></i>Informes</a>
+                </nav>
+
+            </div>
+            <div class="config">
+                <a href="/Configuracion/configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a>
+            </div>
+        </aside>
+        <!-- Main Panel -->
+         <main class="main__panel">
+            <header class="header">
+                <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <section class="dashboard">
+                <h1 class="dashboard__titulo" id="tituloSeccion">Agregar Nuevo pago</h1>
+                <div class="container__form">
+                    <form class="form__nuevo-pago">
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">Nombres</label>
+                            <select class="input__nuevo-pago" id="nombreParticipante">
+                                <option value="" disabled selected>Selecciona un participante</option>
+                            </select>
+
+                        </div>
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">Puesto</label>
+                            <input class="input__nuevo-pago" type="text" id="puestoParticipante" readonly>
+                        </div>
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">Cantidad de Puestos</label>
+                            <input class="input__nuevo-pago" type="text" id="numPuestos" readonly>
+                        </div>
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">Valor</label>
+                            <input class="input__nuevo-pago" type="number" placeholder="130000" id="valorPago">
+                        </div>
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">Fecha Pago</label>
+                            <input class="input__nuevo-pago" type="date" id="fechaPago">
+                        </div>
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">F. Limite Pago</label>
+                            <input class="input__nuevo-pago" type="date" id="fechaLimitePago">
+                        </div>
+                        <div class="datos__nuevo-pago">
+                            <label class="label__nuevo-pago">Selecciona el mes</label>
+                            <select id="seleccionMes" class="seleccion-mes">
+                                <option value="" disabled selected>Selecciona el mes</option>
+                                <option value="Enero (10-Ene / 10-Feb)">Enero</option>
+                                <option value="Febrero (10-Feb / 10-Mar)">Febrero</option>
+                                <option value="Marzo (10-Mar / 10-Abr)">Marzo</option>
+                                <option value="Abril (10-Abr / 10-May)">Abril</option>
+                                <option value="Mayo (10-May / 10-Jun)">Mayo</option>
+                                <option value="Junio (10-Jun / 10-Jul)">Junio</option>
+                                <option value="Julio (10-Jul / 10-Ago)">Julio</option>
+                                <option value="Agosto (10-Ago / 10-Sep)">Agosto</option>
+                                <option value="Septiembre (10-Sep / 10-Oct)">Septiembre</option>
+                                <option value="Octubre (10-Oct / 10-Nov)">Octubre</option>
+                                <option value="Noviembre (10-Nov / 05-Dic)">Noviembre</option>
+                            </select>
+                        </div>
+                        <div class="container__boton">
+                            <button type="button" class="boton__agregar-pago" id="btnAgregarPago">Agregar Pago</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+         </main>
+    </div>
+    <script src="anadir_pagos.js"></script>
+</body>
+</html>

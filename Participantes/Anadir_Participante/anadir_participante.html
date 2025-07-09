@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="anadir_participante.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>LegacyBank - Añadir Participante</title>
+</head>
+<body>
+    <div class="container__principal">
+        <!-- Menu Lateral -->
+         <aside class="menu__lateral">
+            <div class="menu__top">
+                <div class="container__logo">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                </div>
+                <nav class="nav"> 
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
+
+                    <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i>Fondos</a>
+
+                    <a href="/Participantes/Gestion_Participantes/gestion_participantes.html" class="active"><i class="fas fa-users"></i>Participantes</a>
+
+                    <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html"><i class="fas fa-money-bill-wave"></i>Ahorros</a>
+
+                    <a href="/Prestamos/Gestionar_Prestamos/gestion_prestamos.html"><i class="fas fa-handshake"></i>Préstamos</a>
+
+                    <a href="/Moras/moras_ahorros/moras_ahorros.html"><i class="fa-regular fa-clock"></i>Pagos de Mora</a>
+
+                    <a href="/Informes/Ahorros/informes_ahorros.html"><i class="fas fa-chart-line"></i>Informes</a>
+                </nav>
+
+            </div>
+            <div class="config">
+                <a href="/Configuracion/configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a>
+            </div>
+        </aside>
+        <!-- Main Panel -->
+         <main class="main__panel">
+            <header class="header">
+                <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <section class="dashboard">
+                <h1 class="dashboard__titulo">Crear Nuevo Participante</h1>
+                <div class="container__form">
+                    <form class="form__nuevo-participante">
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Nombres</label>
+                            <input class="input__nuevo-participante" type="text" placeholder="Daniel Agamez" id="nombreParticipante">
+                        </div>
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Correo Electronico</label>
+                            <input class="input__nuevo-participante" type="email" placeholder="ejemplo@gmail.com" id="correoElectronico">
+                        </div>
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Contraseña</label>
+                            <input class="input__nuevo-participante" type="text" placeholder="@DaAg01" id="contrasenaNParticipante">
+                        </div>
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Telefono</label>
+                            <input class="input__nuevo-participante" type="text" placeholder="3121427462" id="telefonoNParticipante">
+                        </div>
+                        
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Selecciona el rol</label>
+                            <select id="seleccionRol" class="seleccion-rol">
+                                <option value="" disabled selected>Selecciona el rol</option>
+                                <option value="Administrador">Administrador</option>
+                                <option value="Usuario">Usuario</option>
+                            </select>
+                        </div>
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Selecciona tipo puesto</label>
+                            <select id="seleccionPuesto" class="seleccion-puesto">
+                                <option value="" disabled selected>Selecciona el puesto</option>
+                                <option value="Completo">Completo</option>
+                                <option value="Medio">Medio</option>
+                                <option value="N/A">N/A</option>
+                            </select>
+                        </div>
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Cantidad de Puestos</label>
+                            <input class="input__nuevo-participante" type="text" id="cantidadPuestos">
+                        </div>
+                        <div class="container__boton">
+                            <button type="button" class="boton__nuevo-participante" id="btnCrearParticipante">Crear Participante</button>
+                        </div>
+                        <div class="datos__nuevo-participante">
+                            <label class="label__nuevo-participante">Fondo Actual</label>
+                            <input class="input__nuevo-participante" type="text" id="fondoActualAsignado" readonly>
+                        </div>
+                    </form>
+                </div>
+            </section>
+         </main>
+    </div>
+    <script src="anadir_participante.js"></script>
+</body>
+</html>

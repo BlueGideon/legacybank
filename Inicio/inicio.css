@@ -1,0 +1,158 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #122A3B;
+}
+
+.container__principal {
+    display: flex;
+    height: 100vh;
+}
+
+.menu__lateral {
+    width: 300px;
+    background-color: #203250;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 0;
+}
+
+/* Agrupa el logo el menu arriba */
+.menu__top {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.container__logo {
+    display: flex;
+    justify-content: center;
+}
+
+.container__logo .logo {
+    width: 100%;
+}
+
+.nav a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    border-radius: 50px;
+    font-size: 1.1em;
+    border: 1px solid transparent;
+}
+
+.nav a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.nav a:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+.nav .active {
+    background-color: #75965f;
+}
+
+/* Configuración abajo */
+.config {
+    padding: 0 20px;
+}
+
+.config a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    border-radius: 50px;
+    font-size: 1.1em;
+    border: 1px solid transparent;
+}
+
+.config a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.config a:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+/* Main Panel */
+.main__panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bienvenida {
+    color: #fff;
+    font-size: 1.5em;
+}
+
+.cerrar__sesion {
+    background-color: #75965f;
+    border: 1px solid #75965f;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.cerrar__sesion:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+    transition: .3s;
+}
+
+.dashboard {
+    margin-top: 20px;
+}
+
+.dashboard__titulo {
+    font-size: 1.7em;
+    color: #fff;
+}
+
+.container__cards {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    background-color: #fff;
+    border: 6px solid #75965f;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.card__valor {
+    margin: 5px;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.card__descripcion {
+    margin: 0;
+}

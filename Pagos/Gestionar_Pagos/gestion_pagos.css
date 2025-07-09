@@ -1,0 +1,226 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #122A3B;
+}
+
+.container__principal {
+    display: flex;
+    height: 100vh;
+}
+
+.menu__lateral {
+    width: 300px;
+    background-color: #203250;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 0;
+}
+
+/* Agrupa el logo el menu arriba */
+.menu__top {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.container__logo {
+    display: flex;
+    justify-content: center;
+}
+
+.container__logo .logo {
+    width: 100%;
+}
+
+.nav a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    border-radius: 50px;
+    font-size: 1.1em;
+    border: 1px solid transparent;
+}
+
+.nav a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.nav a:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+.nav .active {
+    background-color: #75965f;
+}
+
+/* Configuración abajo */
+.config {
+    padding: 0 20px;
+}
+
+.config a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    border-radius: 50px;
+    font-size: 1.1em;
+    border: 1px solid transparent;
+}
+
+.config a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.config a:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+/* Main Panel */
+.main__panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.cerrar__sesion {
+    background-color: #75965f;
+    border: 1px solid #75965f;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.cerrar__sesion:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+.dashboard {
+    margin-top: 20px;
+}
+
+.dashboard__titulo {
+    font-size: 1.7em;
+    color: #fff;
+}
+
+/* Informacion total ahorrado */
+.container__total-ahorrado {
+    display: flex;
+    justify-content: center;
+    margin: 15px;
+}
+
+.total-ahorrado {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border: 5px solid #75965f;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+
+.titulo {
+    font-size: 25px;
+    font-weight: bold;
+    color: #75965f;
+    margin: 5px;
+}
+
+.valor {
+    font-size: 25px;
+    font-weight: bold;
+    margin: 5px;
+}
+
+/* Añadir participante */
+
+.nav__anadir-pago {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.anadir_pago {
+    background-color: #659ea4;
+    border: 1px solid #659ea4;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.anadir_pago:hover {
+    background-color: transparent;
+    border: 1px solid #659ea4;
+}
+
+/* Tabla participantes */
+
+.container__tabla {
+    display: flex;
+    justify-content: center;
+    padding: 20px; 
+}
+
+.tabla {
+    width: 80%;
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 35px #659ea4;
+    border-radius: 10px;
+    margin-top: 20px;
+    padding: 5px;
+}
+
+.tabla th, .tabla td {
+    border-bottom: 1px solid #659ea4;
+    padding: 10px 15px;
+    text-align: center;
+}
+
+.tabla th {
+    background-color: #659ea4;
+    font-weight: bold;
+}
+
+.acciones button { 
+    font-weight: bold;
+    margin-right: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius:5px; 
+    cursor: pointer; 
+}
+        
+.editar-btn { 
+    background-color: #ff0;
+    color: #000; 
+}
+        
+.eliminar-btn { 
+    background-color: #f00; 
+    color: #fff; 
+}

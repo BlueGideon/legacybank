@@ -1,0 +1,283 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #122A3B;
+}
+
+.container__principal {
+    display: flex;
+    height: 100vh;
+}
+
+.menu__lateral {
+    width: 300px;
+    background-color: #203250;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 0;
+}
+
+/* Agrupa el logo el menu arriba */
+.menu__top {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.container__logo {
+    display: flex;
+    justify-content: center;
+}
+
+.container__logo .logo {
+    width: 100%;
+}
+
+.nav a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    border-radius: 50px;
+    font-size: 1.1em;
+    border: 1px solid transparent;
+}
+
+.nav a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.nav a:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+.nav .active {
+    background-color: #75965f;
+}
+
+/* Configuración abajo */
+.config {
+    padding: 0 20px;
+}
+
+.config a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    border-radius: 50px;
+    font-size: 1.1em;
+    border: 1px solid transparent;
+}
+
+.config a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.config a:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+/* Main Panel */
+.main__panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.cerrar__sesion {
+    background-color: #75965f;
+    border: 1px solid #75965f;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.cerrar__sesion:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}
+
+.dashboard {
+    margin-top: 20px;
+}
+
+.dashboard__titulo {
+    font-size: 1.7em;
+    color: #fff;
+}
+
+.container__titulos-informes {
+    display: flex;
+    /* border: 1px solid #fff; */
+    padding: 0 10px;
+    gap: 15px;
+}
+
+.titulo-informe {
+    color: #fff9;
+    border-bottom: 2px solid #fff9;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.active-pestana {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid #fff;
+}
+
+/* Filtros */
+.container__filtros {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    color: #fff;
+}
+
+.container__filtro {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    text-align: center;
+}
+
+.label__filtro .label__titulo {
+    font-size: 16px;
+    font-weight: bolder;
+}
+
+.filtro {
+    margin-top: 5px;
+}
+
+.filtro select, .input__filtro {
+    background-color: transparent;
+    padding: 10px 10px;
+    border: 2px solid #ddd;
+    border-radius: 10px 4px 10px 4px;
+    color: #659ea4;
+}
+
+.filtro .label__descripcion {
+    font-size: 15px;
+    color: #fffb;
+}
+
+.filtro-boton {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+}
+
+.consultar {
+    padding: 10px 15px;
+    border: none;
+    background-color: #659ea4;
+    color: white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.consultar:hover {
+    background-color: #456d71;
+}
+
+/* Informacion total ahorrado segun filtro */
+.container__totalMoras {
+    display: flex;
+}
+
+.info__moras {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #fff;
+    border: 2px solid #75965f;
+    padding: 10px 5px;
+    text-align: center;
+    gap: 10px;
+}
+
+.titulo__totalMoras {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #75965f;
+    margin: 0;
+}
+
+.valor__totalMoras {
+    font-size: 1.1em;
+    font-weight: bolder;
+    margin: 0;
+}
+
+/* Tabla informe */
+.container__tabla {
+    display: flex;
+    justify-content: center;
+    padding: 20px; 
+}
+
+.tabla {
+    width: 80%;
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 35px #659ea4;
+    border-radius: 10px;
+    margin-top: 20px;
+    padding: 5px;
+}
+
+.tabla th, .tabla td {
+    border-bottom: 1px solid #659ea4;
+    padding: 10px 15px;
+    text-align: center;
+}
+
+.tabla th {
+    background-color: #659ea4;
+    font-weight: bold;
+}
+
+/* Boton pagar moras */
+.container__pagarMoras {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.pagarMoras {
+    padding: 10px 15px;
+    border: 1px solid #659ea4;
+    background-color: transparent;
+    color: white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagarMoras:hover {
+    background-color: #456d71;
+    border: 1px solid #456d71;
+}

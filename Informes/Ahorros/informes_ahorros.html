@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="informes_ahorros.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>LegacyBank - Informes</title>
+</head>
+<body>
+    <div class="container__principal">
+        <!-- Menu Lateral -->
+         <aside class="menu__lateral">
+            <div class="menu__top">
+                <div class="container__logo">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                </div>
+                <nav class="nav"> 
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
+
+                    <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i>Fondos</a>
+
+                    <a href="/Participantes/Gestion_Participantes/gestion_participantes.html"><i class="fas fa-users"></i>Participantes</a>
+
+                    <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html"><i class="fas fa-money-bill-wave"></i>Ahorros</a>
+
+                    <a href="/Prestamos/Gestionar_Prestamos/gestion_prestamos.html"><i class="fas fa-handshake"></i>Préstamos</a>
+
+                    <a href="/Moras/moras_ahorros/moras_ahorros.html"><i class="fa-regular fa-clock"></i>Pagos de Mora</a>
+
+                    <a href="/Informes/Ahorros/informes_ahorros.html" class="active"><i class="fas fa-chart-line"></i>Informes</a>
+                </nav>
+
+            </div>
+            <div class="config">
+                <a href="/Configuracion/configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a>
+            </div>
+        </aside>
+        <!-- Main Panel -->
+         <main class="main__panel">
+            <header class="header">
+                <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <section class="dashboard">
+                <h1 class="dashboard__titulo">Informes</h1>
+                <!-- Pestañas -->
+                <div class="container__titulos-informes">
+                    <div class="titulo-informe active-pestana" id="btnAhorros">Ahorros</div>
+                    <div class="titulo-informe" id="btnPrestamos">Préstamos</div>
+                    <div class="titulo-informe" id="btnParticipantes">Participantes</div>
+                    <div class="titulo-informe" id="btnIngresosGastos">Ingresos y Gastos</div>
+                </div>
+
+                <!-- Filtros y boton -->
+                <div class="container__filtros">
+                    <!-- Filtro por participante -->
+                    <div class="container__filtro">
+                        <div class="label__filtro">
+                            <label class="label__titulo">Filtrar por participante</label>
+                        </div>
+                        <div class="filtro">
+                            <select id="filtroParticipante">
+                            <option disabled selected>Selecciona el participante</option>
+                        </select>
+                        </div>
+                    </div>
+
+                    <!-- Filtro por rango de fecha -->
+                    <div class="container__filtro">
+                        <div class="label__filtro">
+                            <label class="label__titulo">Filtrar por rango fecha</label>
+                        </div>
+                        <div class="filtro">
+                            <label class="label__descripcion">Desde:</label>
+                            <input type="date" class="input__filtro">
+                            <label class="label__descripcion">Desde:</label>
+                            <input type="date" class="input__filtro">
+                        </div>
+                    </div>
+
+                    <!-- Filtro por año y mes -->
+                    <div class="container__filtro">
+                        <div class="label__filtro">
+                            <label class="label__titulo">Filtrar por año / mes</label>
+                        </div>
+                        <div class="filtro">
+                            <label class="label__descripcion">Selecciona el año:</label>
+                            <select id="filtroAno">
+                                <option disabled selected>Selecciona el año</option>
+                            </select>
+                            <label class="label__descripcion">Selecciona el mes:</label>
+                            <select id="filtroMes">
+                                <option disabled selected>Selecciona el mes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Boton generar informe -->
+                    <div class="container__filtro filtro-boton">
+                        <button class="generar-informe">Generar Informe</button>
+                    </div>
+                </div>
+                <div class="container__totalAhorrado">
+                    <div class="info__totalAhorrado">
+                        <p class="titulo__totalAhorrado">Total Ahorrado</p>
+                        <p class="valor__totalAhorrado" id="totalAhorrado">$ 0</p>
+                    </div>
+                </div>
+                <!-- Informes -->
+                <div class="container__tabla">
+                    <table class="tabla">
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Valor</th>
+                            <th>Fecha Pago</th>
+                            <th>F. Limite Pago</th>
+                            <th>Mes</th>
+                            <th>Días de Mora</th>
+                        </tr>
+                        <tbody id="tablaPagosCuerpo"></tbody>
+                    </table>
+                </div>
+
+                <!-- Descargar informe -->
+                <div class="container__descargarInforme">
+                    <button class="descargarInforme" id="descargarInforme">Descargar Informe</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="informes_ahorros.js"></script>
+    <!-- Libreria para descargar a excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script> 
+</body>
+</html>

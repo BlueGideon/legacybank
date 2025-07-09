@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="anadir_pagos_prestamos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>LegacyBank - Añadir Pagos de Prestamo</title>
+</head>
+<body>
+    <div class="container__principal">
+        <!-- Menu Lateral -->
+         <aside class="menu__lateral">
+            <div class="menu__top">
+                <div class="container__logo">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                </div>
+                <nav class="nav"> 
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
+
+                    <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i>Fondos</a>
+
+                    <a href="/Participantes/Gestion_Participantes/gestion_participantes.html"><i class="fas fa-users"></i>Participantes</a>
+
+                    <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html"><i class="fas fa-money-bill-wave"></i>Ahorros</a>
+
+                    <a href="/Prestamos/Gestionar_Prestamos/gestion_prestamos.html" class="active"><i class="fas fa-handshake"></i>Préstamos</a>
+
+                    <a href="/Moras/moras_ahorros/moras_ahorros.html"><i class="fa-regular fa-clock"></i>Pagos de Mora</a>
+
+                    <a href="/Informes/Ahorros/informes_ahorros.html"><i class="fas fa-chart-line"></i>Informes</a>
+                </nav>
+
+            </div>
+            <div class="config">
+                <a href="/Configuracion/configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a>
+            </div>
+        </aside>
+        <!-- Main Panel -->
+         <main class="main__panel">
+            <header class="header">
+                <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <section class="dashboard">
+                <h1 class="dashboard__titulo" id="titulo_pagosPrestamos">Agregar Nuevo pago de Préstamo</h1>
+                <div class="nav__pagosprestamos">
+                    <button class="atras" id="btnAtras">← Atras</button>
+                </div>
+                <div class="container__form">
+                    <form class="form__nuevopago-prestamo">
+                        <div class="datos__nuevopago-prestamo">
+                            <label class="label__nuevopago-prestamo">Solicitante</label>
+                            <select class="input__nuevopago-prestamo" id="solicitante">
+                                <option value="" disabled selected>Selecciona el solicitante</option>
+                            </select>
+                        </div>
+                        <div class="datos__nuevopago-prestamo">
+                            <label class="label__nuevopago-prestamo">Fecha de pago</label>
+                            <input type="date" class="input__nuevopago-prestamo" id="fechaPago">
+                        </div>
+                        <div class="datos__nuevopago-prestamo">
+                            <label class="label__nuevopago-prestamo">Fecha Limite de pago</label>
+                            <input type="date" class="input__nuevopago-prestamo" id="fechaLimitePago">
+                        </div>
+                        <div class="datos__nuevopago-prestamo">
+                            <label class="label__nuevopago-prestamo">Valor a pagar</label>
+                            <input type="number" class="input__nuevopago-prestamo" id="valorPago">
+                        </div>
+                        <div class="datos__nuevopago-prestamo">
+                            <label class="label__nuevopago-prestamo">Cuota a pagar</label>
+                            <select class="input__nuevopago-prestamo" id="cuotaAPagar">
+                                <option value="" disabled selected>Selecciona la cuota</option>
+                            </select>
+                        </div>
+                        <div class="container__boton">
+                            <button type="button" class="boton__agregarPago-prestamo" id="btnAgregarPagoPrestamo">Agregar Pago Préstamo</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+         </main>
+    </div>
+    <script src="anadir_pagos_prestamos.js"></script>
+</body>
+</html>

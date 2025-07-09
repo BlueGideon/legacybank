@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="anadir_prestamo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>LegacyBank - Añadir Prestamo</title>
+</head>
+<body>
+    <div class="container__principal">
+        <!-- Menu Lateral -->
+         <aside class="menu__lateral">
+            <div class="menu__top">
+                <div class="container__logo">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                </div>
+                <nav class="nav"> 
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
+
+                    <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i>Fondos</a>
+
+                    <a href="/Participantes/Gestion_Participantes/gestion_participantes.html"><i class="fas fa-users"></i>Participantes</a>
+
+                    <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html"><i class="fas fa-money-bill-wave"></i>Ahorros</a>
+
+                    <a href="/Prestamos/Gestionar_Prestamos/gestion_prestamos.html" class="active"><i class="fas fa-handshake"></i>Préstamos</a>
+
+                    <a href="/Moras/moras_ahorros/moras_ahorros.html"><i class="fa-regular fa-clock"></i>Pagos de Mora</a>
+
+                    <a href="/Informes/Ahorros/informes_ahorros.html"><i class="fas fa-chart-line"></i>Informes</a>
+                </nav>
+
+            </div>
+            <div class="config">
+                <a href="/Configuracion/configuracion.html"><i class="fa-solid fa-gear"></i>Configuración</a>
+            </div>
+        </aside>
+        <!-- Main Panel -->
+         <main class="main__panel">
+            <header class="header">
+                <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
+            </header>
+
+            <section class="dashboard">
+                <h1 class="dashboard__titulo">Agregar Nuevo Préstamo</h1>
+                <div class="container__form">
+                    <form class="form__nuevo-prestamo">
+                        <div class="datos__nuevo-prestamo">
+                            <label class="label__nuevo-prestamo">Fecha Préstamo</label>
+                            <input class="input__nuevo-prestamo" type="date" id="fechaPrestamo">
+                        </div>
+                        <div class="datos__nuevo-prestamo">
+                            <label class="label__nuevo-prestamo">Préstamo asociado a</label>
+                            <select class="input__nuevo-prestamo" id="nombreParticipante">
+                                <option value="" disabled selected>Selecciona un participante</option>
+                            </select>
+                        </div>
+                        <div class="datos__nuevo-prestamo">
+                            <label class="label__nuevo-prestamo">Solicitante</label>
+                            <input type="text" class="input__nuevo-prestamo" id="solicitante">
+                        </div>
+                        <div class="datos__nuevo-prestamo">
+                            <label class="label__nuevo-prestamo">Valor préstamo</label>
+                            <input type="number" class="input__nuevo-prestamo" id="valorPrestamo">
+                        </div>
+                        <div class="datos__nuevo-prestamo">
+                            <label class="label__nuevo-prestamo">Tasa de interes</label>
+                            <select id="seleccionTasa" class="input__nuevo-prestamo">
+                                <option value="" disabled selected>Selecciona la tasa de interes</option>
+                                <option value="2%">2%</option>
+                                <option value="5%">5%</option>
+                            </select>
+                        </div>
+                        <div class="datos__nuevo-prestamo">
+                            <label class="label__nuevo-prestamo">N°. Cuotas</label>
+                            <input type="number" class="input__nuevo-prestamo" id="numeroCuotas">
+                        </div>
+                        <div class="container__boton">
+                            <button type="button" class="boton__agregar-prestamo" id="btnAgregarPrestamo">Agregar Préstamo</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+         </main>
+    </div>
+    <script src="anadir_prestamo.js"></script>
+</body>
+</html>

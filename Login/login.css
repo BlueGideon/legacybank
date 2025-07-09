@@ -1,0 +1,152 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #122A3B;
+}
+
+.login__contenedor {
+    width: 320px;
+    background-color: #203250;
+    color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 0 35px #fff;
+}
+
+.login__formulario {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login__logo {
+    height: 3em;
+    padding: 20px 8px 30px 8px;
+    margin-top: 30px;
+}
+
+.container__datos {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+}
+
+.login__input {
+    width: 90%;
+    padding: 12px 10px;
+    border-radius: 8px;
+    margin: 5px 0;
+    margin-bottom: 15px;
+    border: none;
+}
+
+.login__input::placeholder {
+    font-size: 1.1em;
+}
+
+.login__button {
+    padding: 5px 10px;
+    font-size: 1em;
+    border-radius: 4px;
+}
+
+.iniciar-sesion {
+    margin-top: 10px;
+    background-color: #75965f;
+    border: 2px solid #75965f;
+    color: #fff;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.iniciar-sesion:hover {
+    background-color: #4a5f3d;
+    border: 2px solid #4a5f3d;
+}
+
+.login__link {
+    margin: 25px;
+    color: #fff;
+    text-decoration: none;
+    padding-bottom: 20px;
+}
+
+
+.recuperar-contrasena {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    background-color: #75965f;
+    padding: 20px 3px 30px 3px;
+    border-radius: 10px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 320px;
+    z-index: 2;
+    box-shadow: 0 0 35px #fff;
+}
+
+.recuperar-contrasena h3 {
+    text-align: center;
+}
+
+.container__recuperar-datos {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+}
+
+.buttonVerificar, .buttonActualizarCont {
+    padding: 12px 10px;
+    font-size: 1em;
+    border-radius: 8px;
+    margin-top: 10px;
+    background-color: #4a5f3d;
+    border: 2px solid #4a5f3d;
+    color: #fff;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.buttonActualizarCont {
+    margin-bottom: 0;
+}
+
+.buttonVerificar:hover, .buttonActualizarCont:hover {
+    border: 2px solid #fff;
+}
+
+.oculto {
+    display: none;
+}
+
+.inputRecuperar {
+    display: flex;
+    
+    width: 100%;
+    padding: 12px 10px;
+    border-radius: 8px;
+    margin: 5px 0 15px;
+    border: none;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.formNuevaContrasena {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
