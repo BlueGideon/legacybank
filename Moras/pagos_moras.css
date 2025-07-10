@@ -235,3 +235,8 @@ body {
     background-color: #5cb85c;
     color: white;
 }
+
+.sin-mora {
+    color: green;
+    font-weight: bold;
+}

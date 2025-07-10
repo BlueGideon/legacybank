@@ -30,7 +30,8 @@ router.get('/abonados/:id', async (req, res) => {
         const sql = `SELECT SUM(valor) AS total_abonado FROM pagos_mora_ahorros WHERE id_pago_ahorro = ?`;
         const [resultados] = await db.query(sql, [idPago]);
 
-        res.json(resultados[0]);
+        const total = resultados[0]?.total_abonado ?? 0;
+        res.json({ total_abonado: total });
     } catch (err) {
         console.error('Error al obtener abonos:', err);
         res.status(500).json({ mensaje: 'Error al obtener abonos' });
@@ -59,6 +60,45 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ mensaje: 'Error al eliminar el pago de mora' });
     }
 });
+
+// Actualizar un pago de mora
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro } = req.body;
+
+        const sql = `
+            UPDATE pagos_mora_ahorros
+            SET nombre = ?, fecha_pago = ?, concepto = ?, detalle = ?, valor = ?, id_pago_ahorro = ?
+            WHERE id = ?
+        `;
+
+        await db.query(sql, [nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro, id]);
+
+        res.json({ mensaje: 'Pago de mora actualizado correctamente' });
+    } catch (err) {
+        console.error('Error al actualizar pago de mora:', err);
+        res.status(500).json({ mensaje: 'Error al actualizar el pago de mora' });
+    }
+});
+
+// Obtener un pago de mora por ID
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query('SELECT * FROM pagos_mora_ahorros WHERE id = ?', [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ mensaje: 'Pago de mora no encontrado' });
+        }
+
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('Error al obtener pago de mora por ID:', err);
+        res.status(500).json({ mensaje: 'Error al obtener el pago de mora' });
+    }
+});
+
 
 export default router;
 
