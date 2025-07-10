@@ -10,13 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Si el admin está logueado, continúa con el resto de tu lógica...
 
     const pagarMoras = document.getElementById('pagarMoras');
-
     const btnCrearFondo = document.getElementById('btnCrearFondo');
-
     const btnCerrarSesion = document.getElementById('btnCerrarSesion');
-
     const btnAhorros = document.getElementById('btnAhorros');
-
+    const btnGestionPagosMoras = document.getElementById('btnGestionPagosMoras');
     const btnGestionFondos = document.getElementById('btnGestionFondos');
 
     // Funcion para cerrar sesion
@@ -36,6 +33,13 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
 
         window.location.href = '/Moras/moras_ahorros/moras_ahorros.html';
+    });
+
+    // Funcion para ir a pestaña gestion pagos de moras
+    btnGestionPagosMoras.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
     });
 
     // Pagar moras

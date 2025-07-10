@@ -3,93 +3,77 @@ const router = express.Router();
 import db from '../db.js';
 
 // GET participantes con rol Usuario
-router.get('/usuarios', (req, res) => {
-    db.query('SELECT nombre, puesto, cantPuestos FROM participantes WHERE rol = "Usuario"', (err, resultados) => {
-        if (err) {
-            console.error('❌ Error en la consulta SQL:', err);
-            return res.status(500).json({ mensaje: 'Error en la consulta.' });
-        }
-
-        try {
-            res.json(resultados);
-        } catch (error) {
-            console.error('❌ Error al enviar JSON:', error);
-            res.status(500).send('Error interno al enviar JSON');
-        }
-    });
+router.get('/usuarios', async (req, res) => {
+    try {
+        const [resultados] = await db.query('SELECT nombre, puesto, cantPuestos FROM participantes WHERE rol = "Usuario"');
+        res.json(resultados);
+    } catch (err) {
+        console.error('❌ Error en la consulta SQL:', err);
+        res.status(500).json({ mensaje: 'Error en la consulta.' });
+    }
 });
 
-
 // Crear participante
-router.post('/', (req, res) => {
-    const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo } = req.body;
-
-    const sql = `INSERT INTO participantes (nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo], (err, result) => {
-        if (err) {
-            console.error('Error al crear participante:', err.sqlMessage || err.message);
-            return res.status(500).json({ mensaje: `Error al crear participante: ${err.sqlMessage || err.message}` });
-        }
-
-
+router.post('/', async (req, res) => {
+    try {
+        const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo } = req.body;
+        const sql = `INSERT INTO participantes (nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        const [result] = await db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo]);
         res.status(201).json({ mensaje: 'Participante creado con éxito', id: result.insertId });
-    });
+    } catch (err) {
+        console.error('Error al crear participante:', err);
+        res.status(500).json({ mensaje: `Error al crear participante: ${err.message}` });
+    }
 });
 
 // Obtener todos los participantes
-router.get('/', (req, res) => {
-    db.query('SELECT * FROM participantes', (err, resultados) => {
-        if (err) {
-            console.error('Error al obtener participantes:', err);
-            return res.status(500).json({ mensaje: 'Error al obtener participantes' });
-        }
+router.get('/', async (req, res) => {
+    try {
+        const [resultados] = await db.query('SELECT * FROM participantes');
         res.json(resultados);
-    });
+    } catch (err) {
+        console.error('Error al obtener participantes:', err);
+        res.status(500).json({ mensaje: 'Error al obtener participantes' });
+    }
 });
 
 // Obtener un participante por ID
-router.get('/:id', (req, res) => {
-    const { id } = req.params;
-    db.query('SELECT * FROM participantes WHERE id = ?', [id], (err, resultados) => {
-        if (err) {
-            console.error('Error al obtener participante:', err);
-            return res.status(500).json({ mensaje: 'Error al obtener participante' });
-        }
+router.get('/:id', async (req, res) => {
+    try {
+        const [resultados] = await db.query('SELECT * FROM participantes WHERE id = ?', [req.params.id]);
         res.json(resultados[0]);
-    });
+    } catch (err) {
+        console.error('Error al obtener participante:', err);
+        res.status(500).json({ mensaje: 'Error al obtener participante' });
+    }
 });
 
 // Eliminar un participante por ID
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    db.query('DELETE FROM participantes WHERE id = ?', [id], (err) => {
-        if (err) {
-            console.error('Error al eliminar participante:', err);
-            return res.status(500).json({ mensaje: 'Error al eliminar participante' });
-        }
+router.delete('/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM participantes WHERE id = ?', [req.params.id]);
         res.json({ mensaje: 'Participante eliminado con éxito' });
-    });
+    } catch (err) {
+        console.error('Error al eliminar participante:', err);
+        res.status(500).json({ mensaje: 'Error al eliminar participante' });
+    }
 });
 
 // Actualizar un participante por ID
-router.put('/:id', (req, res) => {
-    const { id } = req.params;
-    const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo } = req.body;
-
-    const sql = `UPDATE participantes 
-                 SET nombre = ?, correo = ?, contrasena = ?, telefono = ?, rol = ?, puesto = ?, cantPuestos = ?, fondo = ?
-                 WHERE id = ?`;
-
-    db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo, id], (err) => {
-        if (err) {
-            console.error('Error al actualizar participante:', err);
-            return res.status(500).json({ mensaje: 'Error al actualizar participante' });
-        }
+router.put('/:id', async (req, res) => {
+    try {
+        const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo } = req.body;
+        const sql = `UPDATE participantes 
+                     SET nombre = ?, correo = ?, contrasena = ?, telefono = ?, rol = ?, puesto = ?, cantPuestos = ?, fondo = ?
+                     WHERE id = ?`;
+        await db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo, req.params.id]);
         res.json({ mensaje: 'Participante actualizado con éxito' });
-    });
+    } catch (err) {
+        console.error('Error al actualizar participante:', err);
+        res.status(500).json({ mensaje: 'Error al actualizar participante' });
+    }
 });
 
-// Después (ESM)
 export default router;
+

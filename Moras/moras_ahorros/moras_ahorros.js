@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     const btnPrestamos = document.getElementById('btnPrestamos');
+    const btnGestionPagosMoras = document.getElementById('btnGestionPagosMoras');
     const filtroParticipante = document.getElementById('filtroParticipante');
     const tablaPagosCuerpo = document.getElementById('tablaPagosCuerpo');
     const totalMora = document.getElementById('totalMora');
@@ -25,6 +26,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         event.preventDefault();
 
         window.location.href = '/Moras/moras_prestamos/moras_prestamos.html';
+    });
+
+    // Funcion para ir a pestaña gestion pagos de moras
+    btnGestionPagosMoras.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
     });
 
     // Ir a Pagar moras

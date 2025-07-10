@@ -2,52 +2,58 @@ import express from 'express';
 const router = express.Router();
 import db from '../db.js';
 
-router.get('/por-solicitante/:nombre', (req, res) => {
-    const nombre = req.params.nombre;
-    const sql = 'SELECT * FROM pagos_prestamos WHERE solicitante = ?';
-    db.query(sql, [nombre], (err, results) => {
-        if (err) return res.status(500).json({ error: err });
+// Obtener pagos por solicitante
+router.get('/por-solicitante/:nombre', async (req, res) => {
+    try {
+        const [results] = await db.query('SELECT * FROM pagos_prestamos WHERE solicitante = ?', [req.params.nombre]);
         res.json(results);
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-
 // Obtener todos los pagos
-router.get('/', (req, res) => {
-    db.query('SELECT * FROM pagos_prestamos', (err, results) => {
-        if (err) return res.status(500).json({ error: err });
+router.get('/', async (req, res) => {
+    try {
+        const [results] = await db.query('SELECT * FROM pagos_prestamos');
         res.json(results);
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Crear nuevo pago
-router.post('/', (req, res) => {
-    const { solicitante, fpago, flpago, vpago, cuotaAPagar } = req.body;
-    const sql = 'INSERT INTO pagos_prestamos (solicitante, fpago, flpago, vpago, cuotaAPagar) VALUES (?, ?, ?, ?, ?)';
-    db.query(sql, [solicitante, fpago, flpago, vpago, cuotaAPagar], (err, result) => {
-        if (err) return res.status(500).json({ error: err });
+router.post('/', async (req, res) => {
+    try {
+        const { solicitante, fpago, flpago, vpago, cuotaAPagar } = req.body;
+        const sql = 'INSERT INTO pagos_prestamos (solicitante, fpago, flpago, vpago, cuotaAPagar) VALUES (?, ?, ?, ?, ?)';
+        const [result] = await db.query(sql, [solicitante, fpago, flpago, vpago, cuotaAPagar]);
         res.json({ message: 'Pago guardado correctamente', id: result.insertId });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Actualizar pago existente
-router.put('/:id', (req, res) => {
-    const { solicitante, fpago, flpago, vpago, cuotaAPagar } = req.body;
-    const sql = 'UPDATE pagos_prestamos SET solicitante = ?, fpago = ?, flpago = ?, vpago = ?, cuotaAPagar = ? WHERE id = ?';
-    db.query(sql, [solicitante, fpago, flpago, vpago, cuotaAPagar, req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err });
+router.put('/:id', async (req, res) => {
+    try {
+        const { solicitante, fpago, flpago, vpago, cuotaAPagar } = req.body;
+        const sql = 'UPDATE pagos_prestamos SET solicitante = ?, fpago = ?, flpago = ?, vpago = ?, cuotaAPagar = ? WHERE id = ?';
+        await db.query(sql, [solicitante, fpago, flpago, vpago, cuotaAPagar, req.params.id]);
         res.json({ message: 'Pago actualizado correctamente' });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// elimnar datos
-router.delete('/:id', (req, res) => {
-    const sql = 'DELETE FROM pagos_prestamos WHERE id = ?';
-    db.query(sql, [req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err });
+// Eliminar pago
+router.delete('/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM pagos_prestamos WHERE id = ?', [req.params.id]);
         res.json({ message: 'Pago eliminado correctamente' });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
-
 
 export default router;

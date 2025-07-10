@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="moras_ahorros.css">
+    <link rel="stylesheet" href="gestion_pagos_moras.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>LegacyBank - Informes</title>
+    <title>LegacyBank - Gestion Pagos Moras</title>
 </head>
 <body>
     <div class="container__principal">
@@ -46,60 +46,59 @@
                 <h1 class="dashboard__titulo">Pagos de Mora</h1>
                 <!-- Pestañas -->
                 <div class="container__titulos-informes">
-                    <div class="titulo-informe active-pestana" id="btnAhorros">Moras de Ahorros</div>
+                    <div class="titulo-informe" id="btnAhorros">Moras de Ahorros</div>
                     <div class="titulo-informe" id="btnPrestamos">Moras de Préstamos</div>
-                    <div class="titulo-informe" id="btnGestionPagosMoras">Gestion de Pagos</div>
+                    <div class="titulo-informe active-pestana" id="btnGestionPagosMoras">Gestion de Pagos</div>
                 </div>
 
-                <!-- Filtros y boton -->
-                <div class="container__filtros">
-                    <!-- Filtro por participante -->
-                    <div class="container__filtro">
-                        <div class="label__filtro">
-                            <label class="label__titulo">Filtrar por participante</label>
-                        </div>
-                        <div class="filtro">
-                            <select id="filtroParticipante">
-                            <option disabled selected>Selecciona el participante</option>
-                        </select>
-                        </div>
-                    </div>
-
-                    <!-- Boton consultar -->
-                    <div class="container__filtro filtro-boton">
-                        <button class="consultar">Consultar</button>
-                    </div>
-                </div>
-
+                <!-- Gestion pagos moras ahorros -->
+                <h2 class="titulo_pagos-moras">Pagos moras ahorros</h2>
                 <div class="container__totalMoras">
                     <div class="info__moras">
-                        <p class="titulo__totalMoras">Total Pendiente por Pagar Mora</p>
-                        <p class="valor__totalMoras" id="totalMora">$ 0</p>
+                        <p class="titulo__totalMoras">Total pagado moras ahorros</p>
+                        <p class="valor__totalMoras" id="totalMoraAhorros">$ 0</p>
                     </div>
                 </div>
 
-                <!-- Informes Mora de Ahorros -->
                 <div class="container__tabla">
                     <table class="tabla">
                         <tr>
-                            <th>Nombres</th>
-                            <th>Valor</th>
+                            <th>Nombre</th>
                             <th>Fecha Pago</th>
-                            <th>F. Limite Pago</th>
-                            <th>Mes</th>
-                            <th>Días de Mora</th>
+                            <th>Concepto</th>
+                            <th>Detalle</th>
+                            <th>Valor</th>
+                            <th>Acciones</th>
                         </tr>
-                        <tbody id="tablaPagosCuerpo"></tbody>
+                        <tbody id="tablaPagosAhorros"></tbody>
                     </table>
                 </div>
 
-                <!-- Boton pagar moras -->
-                <div class="container__pagarMoras">
-                    <button class="pagarMoras" id="pagarMoras">Pagar Mora</button>
+                <!-- Gestion pagos moras prestamos -->
+                <h2 class="titulo_pagos-moras">Pagos moras préstamos</h2>
+                <div class="container__totalMoras">
+                    <div class="info__moras">
+                        <p class="titulo__totalMoras">Total pagado moras préstamos</p>
+                        <p class="valor__totalMoras" id="totalMoraPrestamos">$ 0</p>
+                    </div>
+                </div>
+
+                <div class="container__tabla">
+                    <table class="tabla">
+                        <tr>
+                            <th>Solicitante</th>
+                            <th>Fecha Pago</th>
+                            <th>Concepto</th>
+                            <th>Detalle</th>
+                            <th>Valor</th>
+                            <th>Acciones</th>
+                        </tr>
+                        <tbody id="tablaPagosPrestamos"></tbody>
+                    </table>
                 </div>
             </section>
         </main>
     </div>
-    <script src="moras_ahorros.js"></script>
+    <script src="gestion_pagos_moras.js"></script>
 </body>
 </html>

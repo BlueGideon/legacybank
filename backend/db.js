@@ -1,18 +1,17 @@
-import mysql from 'mysql2';
+// db.js
+import mysql from 'mysql2/promise';
 
-const connection = mysql.createConnection({
+const db = await mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '@DanielMysql2025',
-  database: 'fondo_familiar'
+  database: 'fondo_familiar',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Error de conexión a MySQL:', err);
-  } else {
-    console.log('Conectado a MySQL (db.js)');
-  }
-});
+console.log('✅ Conectado a MySQL (db.js)');
 
-export default connection;
+export default db;
+

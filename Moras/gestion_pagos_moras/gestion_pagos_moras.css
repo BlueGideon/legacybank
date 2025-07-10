@@ -124,114 +124,126 @@ body {
     color: #fff;
 }
 
-/* Boton atras */
-.nav__pagosprestamos {
+.container__titulos-informes {
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    /* border: 1px solid #fff; */
+    padding: 0 10px;
+    gap: 15px;
+}
+
+.titulo-informe {
+    color: #fff9;
+    border-bottom: 2px solid #fff9;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.active-pestana {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid #fff;
+}
+
+/* Informacion total pagos mora ahorros */
+.titulo_pagos-moras {
+    color: #fff;
+    margin: 20px 0;
+}
+
+.container__totalMoras {
+    display: flex;
+}
+
+.info__moras {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #fff;
+    border: 2px solid #75965f;
+    padding: 10px 5px;
+    text-align: center;
     gap: 10px;
 }
 
-.atras {
-    background-color: #659ea4;
-    border: 1px solid #659ea4;
-    padding: 8px 16px;
-    border-radius: 20px;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color .3s ease;
-}
-
-.atras:hover {
-    background-color: transparent;
-    border: 1px solid #659ea4;
-}
-
-/* Formulario */
-
-.container__form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    margin: 20px;
-}
-
-.form__nuevopago-mora {
-    display: flex;
-    flex-direction: column;
-    border: 2px solid #659ea4;
-    color: #fff;
-    padding: 10px 15px;
-    border-radius: 10px;
-    width: 300px;
-}
-
-.datos__nuevopago-mora {
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-}
-
-.label__nuevopago-mora {
-    font-size: 1em;
-    margin-bottom: 5px;
-}
-
-.input__nuevopago-mora {
-    background-color: transparent;
-    padding: 10px 10px;
-    border: 2px solid #ddd;
-    border-radius: 10px 4px 10px 4px;
-    color: #659ea4;
-}
-
-.input__nuevopago-mora::placeholder {
-    color: #bbb9;
-}
-
-.container__boton {
-    display: flex;
-    justify-content: center;
-    margin: 10px;
-}
-
-.boton__agregarPago-mora {
-    background-color: #659ea4;
-    border: 1px solid #659ea4;
-    border-radius: 8px;
-    padding: 8px 16px;
-    color: #fff;
-    font-size: 1em;
+.titulo__totalMoras {
+    font-size: 1.2em;
     font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+    color: #75965f;
+    margin: 0;
 }
 
-.boton__agregarPago-mora:hover {
+.valor__totalMoras {
+    font-size: 1.1em;
+    font-weight: bolder;
+    margin: 0;
+}
+
+/* Tabla informe */
+.container__tabla {
+    display: flex;
+    justify-content: center;
+    padding: 20px; 
+}
+
+.tabla {
+    width: 80%;
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 35px #659ea4;
+    border-radius: 10px;
+    margin-top: 20px;
+    padding: 5px;
+}
+
+.tabla th, .tabla td {
+    border-bottom: 1px solid #659ea4;
+    padding: 10px 15px;
+    text-align: center;
+}
+
+.tabla th {
+    background-color: #659ea4;
+    font-weight: bold;
+}
+
+/* Boton pagar moras */
+.container__pagarMoras {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.pagarMoras {
+    padding: 10px 15px;
+    border: 1px solid #659ea4;
+    background-color: transparent;
+    color: white;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagarMoras:hover {
     background-color: #456d71;
     border: 1px solid #456d71;
 }
 
-.badge-mora span {
-    display: inline-block;
-    margin: 4px 6px 0 0;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 14px;
+.btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    margin-right: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
 }
 
-.badge-mora .mora-dias {
-    background-color: #d9534f;
-    color: white;
+.btn-editar {
+    background-color: #ff0;
+    color: #000;
 }
 
-.badge-mora .mora-abono {
-    background-color: #5bc0de;
-    color: black;
-}
-
-.badge-mora .mora-restante {
-    background-color: #5cb85c;
-    color: white;
+.btn-eliminar {
+    background-color: #f00;
+    color: #fff;
 }

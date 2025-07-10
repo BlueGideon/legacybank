@@ -3,131 +3,104 @@ const router = express.Router();
 import db from '../db.js';
 
 // 1. CREAR fondo
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { nombre, tISocio, tIExterno, vPCompleto, esActual } = req.body;
 
-  // Si el nuevo fondo será el actual, primero desmarcamos todos los anteriores
-  const insertarFondo = () => {
-    const sql = `INSERT INTO fondos (nombre, tISocio, tIExterno, vPCompleto, esActual) VALUES (?, ?, ?, ?, ?)`;
-    db.query(sql, [nombre, tISocio, tIExterno, vPCompleto, esActual], (err, result) => {
-      if (err) {
-        console.error('Error al guardar fondo:', err);
-        return res.status(500).json({ mensaje: 'Error al guardar el fondo' });
-      }
-      res.status(201).json({ mensaje: 'Fondo creado con éxito', id: result.insertId });
-    });
-  };
+  try {
+    if (esActual === 'Si') {
+      await db.query(`UPDATE fondos SET esActual = 'No' WHERE esActual = 'Si'`);
+    }
 
-  if (esActual === 'Si') {
-    const desmarcarSQL = `UPDATE fondos SET esActual = 'No' WHERE esActual = 'Si'`;
-    db.query(desmarcarSQL, (err) => {
-      if (err) {
-        console.error('Error al desmarcar fondos:', err);
-        return res.status(500).json({ mensaje: 'Error interno al desmarcar fondos' });
-      }
-      insertarFondo(); // luego de desmarcar, creamos el nuevo fondo
-    });
-  } else {
-    insertarFondo(); // si no es actual, solo lo creamos directamente
+    const [result] = await db.query(
+      `INSERT INTO fondos (nombre, tISocio, tIExterno, vPCompleto, esActual) VALUES (?, ?, ?, ?, ?)`,
+      [nombre, tISocio, tIExterno, vPCompleto, esActual]
+    );
+
+    res.status(201).json({ mensaje: 'Fondo creado con éxito', id: result.insertId });
+  } catch (err) {
+    console.error('Error al guardar fondo:', err);
+    res.status(500).json({ mensaje: 'Error al guardar el fondo' });
   }
 });
 
-// 2. OBTENER fondo actual (DEBE ir antes de /:id)
-router.get('/actual', (req, res) => {
-  const sql = 'SELECT * FROM fondos WHERE esActual = "Si" LIMIT 1';
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error al buscar fondo actual:', err);
-      return res.status(500).json({ mensaje: 'Error al buscar el fondo actual' });
-    }
+// 2. OBTENER fondo actual
+router.get('/actual', async (req, res) => {
+  try {
+    const [results] = await db.query(`SELECT * FROM fondos WHERE esActual = 'Si' LIMIT 1`);
 
     if (results.length === 0) {
       return res.status(404).json({ mensaje: 'No hay fondo actual establecido' });
     }
 
-    res.json(results[0]); // Devuelve el fondo actual
-  });
+    res.json(results[0]);
+  } catch (err) {
+    console.error('Error al buscar fondo actual:', err);
+    res.status(500).json({ mensaje: 'Error al buscar el fondo actual' });
+  }
 });
 
 // 3. OBTENER todos los fondos
-router.get('/', (req, res) => {
-  db.query('SELECT * FROM fondos ORDER BY id DESC', (err, results) => {
-    if (err) {
-      console.error('Error al obtener los fondos:', err);
-      return res.status(500).json({ mensaje: 'Error al obtener los fondos' });
-    }
+router.get('/', async (req, res) => {
+  try {
+    const [results] = await db.query(`SELECT * FROM fondos ORDER BY id DESC`);
     res.json(results);
-  });
+  } catch (err) {
+    console.error('Error al obtener los fondos:', err);
+    res.status(500).json({ mensaje: 'Error al obtener los fondos' });
+  }
 });
 
 // 4. OBTENER fondo por ID
-router.get('/:id', (req, res) => {
-  const id = req.params.id;
-  db.query('SELECT * FROM fondos WHERE id = ?', [id], (err, results) => {
-    if (err) {
-      console.error('Error al buscar el fondo:', err);
-      return res.status(500).json({ mensaje: 'Error al buscar el fondo' });
-    }
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [results] = await db.query(`SELECT * FROM fondos WHERE id = ?`, [id]);
+
     if (results.length === 0) {
       return res.status(404).json({ mensaje: 'Fondo no encontrado' });
     }
+
     res.json(results[0]);
-  });
+  } catch (err) {
+    console.error('Error al buscar el fondo:', err);
+    res.status(500).json({ mensaje: 'Error al buscar el fondo' });
+  }
 });
 
 // 5. ACTUALIZAR fondo
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { nombre, tISocio, tIExterno, vPCompleto, esActual } = req.body;
 
-  const desmarcarSQL = `UPDATE fondos SET esActual = 'No' WHERE esActual = 'Si'`;
-  const actualizarSQL = `UPDATE fondos SET nombre = ?, tISocio = ?, tIExterno = ?, vPCompleto = ?, esActual = ? WHERE id = ?`;
+  try {
+    if (esActual === 'Si') {
+      await db.query(`UPDATE fondos SET esActual = 'No' WHERE esActual = 'Si'`);
+    }
 
-  // Si se marca como actual, desmarcar todos los demás primero
-  if (esActual === 'Si') {
-    db.query(desmarcarSQL, (err) => {
-      if (err) {
-        console.error('Error al desmarcar fondos:', err);
-        return res.status(500).json({ mensaje: 'Error interno al desmarcar fondos' });
-      }
+    await db.query(
+      `UPDATE fondos SET nombre = ?, tISocio = ?, tIExterno = ?, vPCompleto = ?, esActual = ? WHERE id = ?`,
+      [nombre, tISocio, tIExterno, vPCompleto, esActual, id]
+    );
 
-      db.query(actualizarSQL, [nombre, tISocio, tIExterno, vPCompleto, esActual, id], (err) => {
-        if (err) {
-          console.error('Error al actualizar fondo:', err);
-          return res.status(500).json({ mensaje: 'Error al actualizar el fondo' });
-        }
-
-        res.json({ mensaje: 'Fondo actualizado correctamente' });
-      });
-    });
-  } else {
-    // Si no se marca como actual, simplemente actualiza
-    db.query(actualizarSQL, [nombre, tISocio, tIExterno, vPCompleto, esActual, id], (err) => {
-      if (err) {
-        console.error('Error al actualizar fondo:', err);
-        return res.status(500).json({ mensaje: 'Error al actualizar el fondo' });
-      }
-
-      res.json({ mensaje: 'Fondo actualizado correctamente' });
-    });
+    res.json({ mensaje: 'Fondo actualizado correctamente' });
+  } catch (err) {
+    console.error('Error al actualizar fondo:', err);
+    res.status(500).json({ mensaje: 'Error al actualizar el fondo' });
   }
 });
 
 // 6. ELIMINAR fondo
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const sql = 'DELETE FROM fondos WHERE id = ?';
 
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error('Error al eliminar fondo:', err);
-      return res.status(500).json({ mensaje: 'Error al eliminar el fondo' });
-    }
+  try {
+    await db.query(`DELETE FROM fondos WHERE id = ?`, [id]);
     res.json({ mensaje: 'Fondo eliminado correctamente' });
-  });
+  } catch (err) {
+    console.error('Error al eliminar fondo:', err);
+    res.status(500).json({ mensaje: 'Error al eliminar el fondo' });
+  }
 });
 
-// Después (ESM)
 export default router;
-

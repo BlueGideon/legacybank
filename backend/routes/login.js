@@ -3,67 +3,68 @@ const router = express.Router();
 import db from '../db.js';
 
 // Ruta para login de administrador
-router.post('/', (req, res) => {
-    const { correo, contrasena } = req.body;
+router.post('/', async (req, res) => {
+  const { correo, contrasena } = req.body;
+  try {
+    const [results] = await db.query(
+      `SELECT * FROM participantes WHERE correo = ? AND contrasena = ? AND rol = 'Administrador' LIMIT 1`,
+      [correo, contrasena]
+    );
 
-    const sql = `SELECT * FROM participantes WHERE correo = ? AND contrasena = ? AND rol = 'Administrador' LIMIT 1`;
+    if (results.length === 0) {
+      return res.status(401).json({ mensaje: 'Credenciales incorrectas o no eres administrador' });
+    }
 
-    db.query(sql, [correo, contrasena], (err, results) => {
-        if (err) {
-            console.error('Error en login:', err);
-            return res.status(500).json({ mensaje: 'Error interno del servidor' });
-        }
+    const usuario = { ...results[0] };
+    delete usuario.contrasena;
 
-        if (results.length === 0) {
-            return res.status(401).json({ mensaje: 'Credenciales incorrectas o no eres administrador' });
-        }
-
-        const usuario = { ...results[0] };
-        delete usuario.contrasena;
-
-        res.json({ mensaje: 'Inicio de sesión exitoso', usuario });
-    });
+    res.json({ mensaje: 'Inicio de sesión exitoso', usuario });
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
 });
 
 // Verificar identidad para recuperación de contraseña
-router.post('/verificar-identidad', (req, res) => {
-    const { correo, fondo } = req.body;
+router.post('/verificar-identidad', async (req, res) => {
+  const { correo, fondo } = req.body;
 
-    const sql = `SELECT * FROM participantes WHERE correo = ? AND fondo = ? AND rol = 'Administrador' LIMIT 1`;
+  try {
+    const [results] = await db.query(
+      `SELECT * FROM participantes WHERE correo = ? AND fondo = ? AND rol = 'Administrador' LIMIT 1`,
+      [correo, fondo]
+    );
 
-    db.query(sql, [correo, fondo], (err, results) => {
-        if (err) {
-            console.error('Error al verificar identidad:', err);
-            return res.status(500).json({ mensaje: 'Error del servidor' });
-        }
+    if (results.length === 0) {
+      return res.status(404).json({ mensaje: 'No se encontró un administrador con ese correo y fondo actual.' });
+    }
 
-        if (results.length === 0) {
-            return res.status(404).json({ mensaje: 'No se encontró un administrador con ese correo y fondo actual.' });
-        }
-
-        res.json({ mensaje: 'Identidad verificada correctamente' });
-    });
+    res.json({ mensaje: 'Identidad verificada correctamente' });
+  } catch (err) {
+    console.error('Error al verificar identidad:', err);
+    res.status(500).json({ mensaje: 'Error del servidor' });
+  }
 });
 
 // Ruta para actualizar la contraseña del administrador
-router.put('/actualizar-contrasena', (req, res) => {
-    const { correo, fondo, nuevaContrasena } = req.body;
+router.put('/actualizar-contrasena', async (req, res) => {
+  const { correo, fondo, nuevaContrasena } = req.body;
 
-    const sql = `UPDATE participantes SET contrasena = ? WHERE correo = ? AND fondo = ? AND rol = 'Administrador'`;
+  try {
+    const [result] = await db.query(
+      `UPDATE participantes SET contrasena = ? WHERE correo = ? AND fondo = ? AND rol = 'Administrador'`,
+      [nuevaContrasena, correo, fondo]
+    );
 
-    db.query(sql, [nuevaContrasena, correo, fondo], (err, result) => {
-        if (err) {
-            console.error('Error al actualizar contraseña:', err);
-            return res.status(500).json({ mensaje: 'Error al actualizar la contraseña' });
-        }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensaje: 'No se encontró el administrador para actualizar' });
+    }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensaje: 'No se encontró el administrador para actualizar' });
-        }
-
-        res.json({ mensaje: 'Contraseña actualizada correctamente' });
-    });
+    res.json({ mensaje: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    console.error('Error al actualizar contraseña:', err);
+    res.status(500).json({ mensaje: 'Error al actualizar la contraseña' });
+  }
 });
 
-// Después (ESM)
 export default router;
