@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="pagos_moras.css">
+    <link rel="stylesheet" href="pagos_moras_prestamos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>LegacyBank - Añadir Pagos de Mora</title>
 </head>
@@ -43,16 +43,16 @@
             </header>
 
             <section class="dashboard">
-                <h1 class="dashboard__titulo" id="titulo_pagosMoras">Agregar Nuevo pago de Mora</h1>
+                <h1 class="dashboard__titulo">Agregar Nuevo pago de Mora - Prestamos</h1>
                 <div class="nav__pagosprestamos">
                     <button class="atras" id="btnAtras">← Atras</button>
                 </div>
                 <div class="container__form">
                     <form class="form__nuevopago-mora">
                         <div class="datos__nuevopago-mora">
-                            <label class="label__nuevopago-mora">Participante</label>
-                            <select class="input__nuevopago-mora" id="participante">
-                                <option value="" disabled selected>Selecciona el participante</option>
+                            <label class="label__nuevopago-mora">Solicitante</label>
+                            <select class="input__nuevopago-mora" id="solicitante">
+                                <option value="" disabled selected>Selecciona el solicitante</option>
                             </select>
                         </div>
                         <div class="datos__nuevopago-mora">
@@ -75,13 +75,13 @@
                             <input type="number" class="input__nuevopago-mora" id="valorPago">
                         </div>
                         <div class="container__boton">
-                            <button type="button" class="boton__agregarPago-mora" id="btnAgregarPagomora">Agregar Pago Mora</button>
+                            <button type="button" class="boton__agregarPago-mora" id="btnAgregarPagomoraPrestamo">Agregar Pago Mora</button>
                         </div>
                     </form>
                 </div>
             </section>
          </main>
     </div>
-    <script src="pagos_moras.js"></script>
+    <script src="pagos_moras_prestamos.js"></script>
 </body>
 </html>

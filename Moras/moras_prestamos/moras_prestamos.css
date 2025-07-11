@@ -281,3 +281,19 @@ body {
     background-color: #456d71;
     border: 1px solid #456d71;
 }
+
+.btn-pagar {
+    background-color: #75965f;
+    color: white;
+    border: 1px solid #75965f;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-pagar:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
+}

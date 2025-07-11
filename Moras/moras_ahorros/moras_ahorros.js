@@ -41,42 +41,62 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Ir a Pagar moras
     document.getElementById('pagarMoras').addEventListener('click', function(e) {
         e.preventDefault();
+        localStorage.setItem('tipoMora', 'ahorros');
         window.location.href = '/Moras/pagos_moras.html';
-    })
+    });
 
 
-    // Cargar participantes con mora
-    try {
-        const fondoRes = await fetch('http://localhost:3000/api/fondos/actual');
-        const fondoActual = await fondoRes.json();
 
-        const participantesRes = await fetch('http://localhost:3000/api/participantes');
-        const participantes = await participantesRes.json();
+    // Cargar participantes con mora (solo si hay mora pendiente)
+try {
+    const fondoRes = await fetch('http://localhost:3000/api/fondos/actual');
+    const fondoActual = await fondoRes.json();
 
-        const usuarios = participantes.filter(p =>
-            p.rol === 'Usuario' && p.fondo === fondoActual.nombre
-        );
+    const participantesRes = await fetch('http://localhost:3000/api/participantes');
+    const participantes = await participantesRes.json();
 
-        for (const usuario of usuarios) {
-            const pagosRes = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
-            const pagos = await pagosRes.json();
+    const usuarios = participantes.filter(p =>
+        p.rol === 'Usuario' && p.fondo === fondoActual.nombre
+    );
 
-            const tieneMora = pagos.some(p => {
-                const fPago = new Date(p.fecha_pago);
-                const fLimite = new Date(p.fecha_limite_pago);
-                return (fPago - fLimite) / (1000 * 60 * 60 * 24) > 0;
-            });
+    for (const usuario of usuarios) {
+        const pagosRes = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
+        const pagos = await pagosRes.json();
 
-            if (tieneMora) {
-                const option = document.createElement('option');
-                option.value = usuario.nombre;
-                option.textContent = usuario.nombre;
-                filtroParticipante.appendChild(option);
+        let tieneMoraPendiente = false;
+
+        for (const p of pagos) {
+            const fPago = new Date(p.fecha_pago);
+            const fLimite = new Date(p.fecha_limite_pago);
+            const diasMora = Math.max(0, Math.ceil((fPago - fLimite) / (1000 * 60 * 60 * 24)));
+
+            if (diasMora > 0) {
+                const moraTotal = diasMora * 1000;
+
+                const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${p.id}`);
+                const { total_abonado } = await abonoRes.json();
+                const abono = total_abonado ?? 0;
+
+                const moraPendiente = moraTotal - abono;
+
+                if (moraPendiente > 0) {
+                    tieneMoraPendiente = true;
+                    break;
+                }
             }
         }
-    } catch (error) {
-        console.error('Error al cargar participantes con mora:', error);
+
+        if (tieneMoraPendiente) {
+            const option = document.createElement('option');
+            option.value = usuario.nombre;
+            option.textContent = usuario.nombre;
+            filtroParticipante.appendChild(option);
+        }
     }
+} catch (error) {
+    console.error('Error al cargar participantes con mora:', error);
+}
+
 
     // Formatear fecha
     function formatearFecha(fechaStr) {
