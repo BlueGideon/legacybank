@@ -40,24 +40,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.getElementById('participantesActivos').textContent = participantesActivos;
 
-            // 4. Obtener datos: pagos ahorros, pagos préstamos y préstamos
-            const pagosAhorrosRes = await fetch('http://localhost:3000/api/pagos-ahorros');
-            const pagosPrestamosRes = await fetch('http://localhost:3000/api/pagos-prestamos');
-            const prestamosRes = await fetch('http://localhost:3000/api/prestamos');
+            // 4. Obtener datos de ingresos y egresos
+const [
+    pagosAhorrosRes,
+    pagosPrestamosRes,
+    prestamosRes,
+    pagosMoraAhorrosRes,
+    pagosMoraPrestamosRes
+] = await Promise.all([
+    fetch('http://localhost:3000/api/pagos-ahorros'),
+    fetch('http://localhost:3000/api/pagos-prestamos'),
+    fetch('http://localhost:3000/api/prestamos'),
+    fetch('http://localhost:3000/api/pagos-mora-ahorros'),
+    fetch('http://localhost:3000/api/pagos-mora-prestamos')
+]);
 
-            const pagosAhorros = await pagosAhorrosRes.json();
-            const pagosPrestamos = await pagosPrestamosRes.json();
-            const prestamos = await prestamosRes.json();
+const pagosAhorros = await pagosAhorrosRes.json();
+const pagosPrestamos = await pagosPrestamosRes.json();
+const prestamos = await prestamosRes.json();
+const pagosMoraAhorros = await pagosMoraAhorrosRes.json();
+const pagosMoraPrestamos = await pagosMoraPrestamosRes.json();
 
-            // 5. Calcular fondos disponibles = ahorros + pagos préstamo - préstamos dados
-            const totalAhorros = pagosAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
-            const totalPagosPrestamos = pagosPrestamos.reduce((sum, p) => sum + parseFloat(p.vpago || 0), 0);
-            const totalPrestado = prestamos.reduce((sum, p) => sum + parseFloat(p.vprestamo || 0), 0);
+// 5. Calcular totales
+const totalAhorros = pagosAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+const totalPagosPrestamos = pagosPrestamos.reduce((sum, p) => sum + parseFloat(p.vpago || 0), 0);
+const totalPagosMoraAhorros = pagosMoraAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+const totalPagosMoraPrestamos = pagosMoraPrestamos.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+const totalPrestado = prestamos.reduce((sum, p) => sum + parseFloat(p.vprestamo || 0), 0);
 
-            const fondosDisponibles = totalAhorros + totalPagosPrestamos - totalPrestado;
-            document.getElementById('fondosDisponibles').textContent = `$ ${fondosDisponibles.toLocaleString('es-CO')}`;
+// 6. Fondos disponibles: todos los ingresos menos lo prestado
+const fondosDisponibles = totalAhorros + totalPagosPrestamos + totalPagosMoraAhorros + totalPagosMoraPrestamos - totalPrestado;
 
-            // 6. Calcular préstamos activos (saldo > 0)
+document.getElementById('fondosDisponibles').textContent = `$ ${fondosDisponibles.toLocaleString('es-CO')}`;
+
+
+            // 7. Calcular préstamos activos (saldo > 0)
             let prestamosActivos = 0;
 
             for (let prestamo of prestamos) {
