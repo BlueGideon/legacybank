@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
+    btnCerrarSesion.addEventListener('click', function (event) {
+            event.preventDefault();
+            localStorage.removeItem('adminActivo');
+            window.location.href = '/Login/login.html';
+        });
+
     const btnGestionPagosMoras = document.getElementById('btnGestionPagosMoras');
     const btnAhorros = document.getElementById('btnAhorros');
     const tablaCuerpo = document.querySelector('#tablaPagosCuerpo');

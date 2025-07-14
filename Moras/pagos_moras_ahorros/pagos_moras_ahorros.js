@@ -23,29 +23,39 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
     const tipoMora = localStorage.getItem('tipoMora');
-    if (tipoMora !== 'prestamos') return;
+    if (tipoMora !== 'ahorros') return;
 
-    const idEditar = localStorage.getItem('idPagoMoraPrestamoEditar');
+    let idEditar = localStorage.getItem('idPagoMoraAhorroEditar');
+
+// Validación estricta
+if (!idEditar || idEditar === 'undefined' || idEditar === 'null') {
+    idEditar = null;
+    localStorage.removeItem('idPagoMoraAhorroEditar'); // 🔥 limpiar basura
+}
+
+const modoEdicion = !!idEditar;
+
 
     const conceptoInput = document.getElementById('conceptoMora');
-    const solicitante = document.getElementById('solicitante');
+    const participante = document.getElementById('participante');
     const fechaPago = document.getElementById('fechaPago');
     const detalle = document.getElementById('detalleMora');
     const valor = document.getElementById('valorPago');
     const resumen = document.getElementById('resumenMora');
-    const btnAgregar = document.getElementById('btnAgregarPagomoraPrestamo');
+    const btnAgregar = document.getElementById('btnAgregarPagomoraAhorro');
 
-    conceptoInput.value = 'Pago de Préstamo';
+    conceptoInput.value = 'Pago de Ahorro';
 
     // ==================================
     // 🟦 MODO EDICIÓN DE PAGO EXISTENTE
     // ==================================
-    if (idEditar) {
+    if (modoEdicion) {
         try {
-            const res = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/${idEditar}`);
+            const res = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/${idEditar}`);
             const pago = await res.json();
+            const valorAnterior = parseFloat(pago.valor);
 
-            solicitante.innerHTML = `<option value="${pago.solicitante}" selected>${pago.solicitante}</option>`;
+            participante.innerHTML = `<option value="${pago.nombre}" selected>${pago.nombre}</option>`;
             fechaPago.value = pago.fecha_pago.split('T')[0];
             detalle.innerHTML = `<option value="${pago.detalle}" selected>${pago.detalle}</option>`;
             valor.value = pago.valor;
@@ -55,20 +65,21 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             btnAgregar.addEventListener('click', async () => {
                 const datos = {
-                    solicitante: solicitante.value,
+                    nombre: participante.value,
                     fecha_pago: fechaPago.value,
                     concepto: conceptoInput.value.trim(),
                     detalle: detalle.value,
-                    valor: parseFloat(valor.value)
+                    valor: parseFloat(valor.value),
+                    id_pago_ahorro: pago.id_pago_ahorro
                 };
 
-                if (!datos.solicitante || !datos.fecha_pago || !datos.concepto || !datos.detalle || isNaN(datos.valor) || datos.valor <= 0) {
+                if (!datos.nombre || !datos.fecha_pago || !datos.concepto || !datos.detalle || isNaN(datos.valor) || datos.valor <= 0) {
                     alert('Completa todos los campos correctamente.');
                     return;
                 }
 
                 try {
-                    const resUpdate = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/${idEditar}`, {
+                    const resUpdate = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/${idEditar}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
@@ -77,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     if (!resUpdate.ok) throw new Error('Error al actualizar el pago');
 
                     alert('Pago de mora actualizado correctamente.');
-                    localStorage.removeItem('idPagoMoraPrestamoEditar');
+                    localStorage.removeItem('idPagoMoraAhorroEditar');
                     localStorage.removeItem('tipoMora');
                     window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
 
@@ -92,33 +103,35 @@ document.addEventListener('DOMContentLoaded', async function () {
             alert('No se pudo cargar el pago a editar.');
         }
 
+
     // ==================================
     // 🟩 MODO CREACIÓN DE NUEVO PAGO
     // ==================================
     } else {
-        const pago = JSON.parse(localStorage.getItem('pagoPrestamoMora'));
+        const pago = JSON.parse(localStorage.getItem('pagoAhorroMora'));
+        console.log(pago)
         if (!pago) {
             alert('No se encontró el pago con mora.');
             return;
         }
 
-        const fPago = new Date(pago.fpago);
-        const fLimite = new Date(pago.flpago);
+        const fPago = new Date(pago.fecha_pago);
+        const fLimite = new Date(pago.fecha_limite_pago);
         const diasMora = Math.max(0, Math.ceil((fPago - fLimite) / (1000 * 60 * 60 * 24)));
         const moraTotal = diasMora * 1000;
 
         try {
-            const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/abonados/${pago.id}`);
+            const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${pago.id}`);
             const { total_abonado } = await abonoRes.json();
             const abonado = total_abonado ?? 0;
             const restante = moraTotal - abonado;
 
-            solicitante.innerHTML = `<option value="${pago.solicitante}" selected>${pago.solicitante}</option>`;
+            participante.innerHTML = `<option value="${pago.nombre}" selected>${pago.nombre}</option>`;
 
             const detalleObj = {
                 id: pago.id,
                 diasMora,
-                descripcion: `Mora préstamo del ${fPago.toLocaleDateString()}`,
+                descripcion: `Mora ahorro del ${fPago.toLocaleDateString()}`,
                 valorRestante: restante,
                 valorTotal: moraTotal
             };
@@ -143,28 +156,28 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const detalleParseado = JSON.parse(detalleSeleccionado);
 
                 const datos = {
-                    solicitante: solicitante.value,
+                    nombre: participante.value,
                     fecha_pago: fechaPago.value,
                     concepto: conceptoInput.value.trim(),
                     detalle: detalleParseado.descripcion,
                     valor: parseFloat(valor.value),
-                    id_pago_prestamo: detalleParseado.id  // ✅ Importante en CREACIÓN
+                    id_pago_ahorro: detalleParseado.id  // ✅ Importante en CREACIÓN
                 };
 
                 if (
-                    !datos.solicitante ||
+                    !datos.nombre ||
                     !datos.fecha_pago ||
                     !datos.concepto ||
                     !datos.detalle ||
                     isNaN(datos.valor) || datos.valor <= 0 ||
-                    !datos.id_pago_prestamo
+                    !datos.id_pago_ahorro
                 ) {
                     alert('Completa todos los campos correctamente.');
                     return;
                 }
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/pagos-mora-prestamos', {
+                    const res = await fetch('http://localhost:3000/api/pagos-mora-ahorros', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
@@ -173,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     if (!res.ok) throw new Error('Error al guardar el pago');
 
                     alert('Pago de mora guardado correctamente.');
-                    localStorage.removeItem('pagoPrestamoMora');
+                    localStorage.removeItem('pagoAhorroMora');
                     localStorage.removeItem('tipoMora');
                     window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
 

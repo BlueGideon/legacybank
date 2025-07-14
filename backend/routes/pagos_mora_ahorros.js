@@ -2,6 +2,40 @@ import express from 'express';
 const router = express.Router();
 import db from '../db.js';
 
+// Obtener el pago original de ahorro (para reconstruir mora, abonado, restante)
+router.get('/original/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await db.query('SELECT * FROM pagos_ahorros WHERE id = ?', [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ mensaje: 'Pago original no encontrado' });
+        }
+
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('Error al obtener pago original:', err);
+        res.status(500).json({ mensaje: 'Error al obtener el pago original' });
+    }
+});
+
+
+// Consultar total abonado por ID de pago ahorro
+router.get('/abonados/:id', async (req, res) => {
+    try {
+        const idPago = req.params.id;
+
+        const sql = `SELECT SUM(valor) AS total_abonado FROM pagos_mora_ahorros WHERE id_pago_ahorro = ?`;
+        const [resultados] = await db.query(sql, [idPago]);
+
+        const total = resultados[0]?.total_abonado ?? 0;
+        res.json({ total_abonado: total });
+    } catch (err) {
+        console.error('Error al obtener abonos:', err);
+        res.status(500).json({ mensaje: 'Error al obtener abonos' });
+    }
+});
+
 // Registrar nuevo pago de mora
 router.post('/', async (req, res) => {
     try {
@@ -19,22 +53,6 @@ router.post('/', async (req, res) => {
     } catch (err) {
         console.error('Error al guardar pago de mora:', err);
         res.status(500).json({ mensaje: 'Error al guardar el pago de mora' });
-    }
-});
-
-// Consultar total abonado por ID de pago ahorro
-router.get('/abonados/:id', async (req, res) => {
-    try {
-        const idPago = req.params.id;
-
-        const sql = `SELECT SUM(valor) AS total_abonado FROM pagos_mora_ahorros WHERE id_pago_ahorro = ?`;
-        const [resultados] = await db.query(sql, [idPago]);
-
-        const total = resultados[0]?.total_abonado ?? 0;
-        res.json({ total_abonado: total });
-    } catch (err) {
-        console.error('Error al obtener abonos:', err);
-        res.status(500).json({ mensaje: 'Error al obtener abonos' });
     }
 });
 
@@ -99,6 +117,4 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-
 export default router;
-

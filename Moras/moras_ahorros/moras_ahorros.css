@@ -260,24 +260,18 @@ body {
     font-weight: bold;
 }
 
-/* Boton pagar moras */
-.container__pagarMoras {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-.pagarMoras {
-    padding: 10px 15px;
-    border: 1px solid #659ea4;
-    background-color: transparent;
+.btn-pagar {
+    background-color: #75965f;
     color: white;
-    border-radius: 15px;
+    border: 1px solid #75965f;
+    padding: 6px 12px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
-.pagarMoras:hover {
-    background-color: #456d71;
-    border: 1px solid #456d71;
+.btn-pagar:hover {
+    background-color: transparent;
+    border: 1px solid #75965f;
 }

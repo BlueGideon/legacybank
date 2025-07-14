@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             btnEditar.textContent = 'Editar';
             btnEditar.className = 'btn btn-editar';
             btnEditar.addEventListener('click', () => {
-                localStorage.setItem('idPagoMoraEditar', p.id);
+                localStorage.setItem('idPagoMoraAhorroEditar', p.id);
+                localStorage.setItem('tipoMora', 'ahorros');
                 window.location.href = '/Moras/pagos_moras_ahorros/pagos_moras_ahorros.html';
             });
 

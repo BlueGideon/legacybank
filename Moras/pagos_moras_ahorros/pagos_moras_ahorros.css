@@ -124,52 +124,61 @@ body {
     color: #fff;
 }
 
-.container__titulos-informes {
+/* Boton atras */
+.nav__pagosprestamos {
     display: flex;
-    /* border: 1px solid #fff; */
-    padding: 0 10px;
-    gap: 15px;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
 }
 
-.titulo-informe {
-    color: #fff9;
-    border-bottom: 2px solid #fff9;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.active-pestana {
+.atras {
+    background-color: #659ea4;
+    border: 1px solid #659ea4;
+    padding: 8px 16px;
+    border-radius: 20px;
     color: #fff;
-    font-size: 18px;
-    font-weight: bold;
-    border-bottom: 2px solid #fff;
+    cursor: pointer;
+    transition: background-color .3s ease;
 }
 
-/* Filtros */
-.container__filtros {
+.atras:hover {
+    background-color: transparent;
+    border: 1px solid #659ea4;
+}
+
+/* Formulario */
+
+.container__form {
     display: flex;
     justify-content: center;
-    padding: 10px;
-    color: #fff;
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
 }
 
-.container__filtro {
+.form__nuevopago-mora {
     display: flex;
     flex-direction: column;
-    padding: 5px;
-    text-align: center;
+    border: 2px solid #659ea4;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 10px;
+    width: 300px;
 }
 
-.label__filtro .label__titulo {
-    font-size: 16px;
-    font-weight: bolder;
+.datos__nuevopago-mora {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
 }
 
-.filtro {
-    margin-top: 5px;
+.label__nuevopago-mora {
+    font-size: 1em;
+    margin-bottom: 5px;
 }
 
-.filtro select, .input__filtro {
+.input__nuevopago-mora {
     background-color: transparent;
     padding: 10px 10px;
     border: 2px solid #ddd;
@@ -177,101 +186,57 @@ body {
     color: #659ea4;
 }
 
-.filtro .label__descripcion {
-    font-size: 15px;
-    color: #fffb;
+.input__nuevopago-mora::placeholder {
+    color: #bbb9;
 }
 
-.filtro-boton {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding-bottom: 10px;
-}
-
-.consultar {
-    padding: 10px 15px;
-    border: none;
-    background-color: #659ea4;
-    color: white;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.consultar:hover {
-    background-color: #456d71;
-}
-
-/* Informacion total ahorrado segun filtro */
-.container__totalPrestado {
-    display: flex;
-}
-
-.info__totalPrestado {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    background-color: #fff;
-    border: 2px solid #75965f;
-    padding: 10px 5px;
-    text-align: center;
-    gap: 10px;
-}
-
-.titulo__totalPrestado {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #75965f;
-    margin: 0;
-}
-
-.valor__totalPrestado {
-    font-size: 1.1em;
-    font-weight: bolder;
-    margin: 0;
-}
-
-/* Tabla informe */
-.container__tabla {
+.container__boton {
     display: flex;
     justify-content: center;
-    padding: 20px; 
+    margin: 10px;
 }
 
-.tabla {
-    width: 80%;
-    color: #fff;
-    border: 2px solid #fff;
-    box-shadow: 0 0 35px #659ea4;
-    border-radius: 10px;
-    margin-top: 20px;
-    padding: 5px;
-}
-
-.tabla th, .tabla td {
-    border-bottom: 1px solid #659ea4;
-    padding: 10px 15px;
-    text-align: center;
-}
-
-.tabla th {
+.boton__agregarPago-mora {
     background-color: #659ea4;
+    border: 1px solid #659ea4;
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: #fff;
+    font-size: 1em;
     font-weight: bold;
-}
-
-.btn-pagar {
-    background-color: #75965f;
-    color: white;
-    border: 1px solid #75965f;
-    padding: 6px 12px;
-    border-radius: 4px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+    transition: 0.3s;
 }
 
-.btn-pagar:hover {
-    background-color: transparent;
-    border: 1px solid #75965f;
+.boton__agregarPago-mora:hover {
+    background-color: #456d71;
+    border: 1px solid #456d71;
+}
+
+.badge-mora span {
+    display: inline-block;
+    margin: 4px 6px 0 0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.badge-mora .mora-dias {
+    background-color: #d9534f;
+    color: white;
+}
+
+.badge-mora .mora-abono {
+    background-color: #5bc0de;
+    color: black;
+}
+
+.badge-mora .mora-restante {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.sin-mora {
+    color: green;
+    font-weight: bold;
 }

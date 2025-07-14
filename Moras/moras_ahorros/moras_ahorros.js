@@ -1,173 +1,155 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
-
     if (!admin) {
         alert('Debes iniciar sesión para acceder a esta página.');
         window.location.href = '/Login/login.html';
         return;
     }
 
-    const btnCerrarSesion = document.getElementById('btnCerrarSesion');
-    const btnPrestamos = document.getElementById('btnPrestamos');
-    const btnGestionPagosMoras = document.getElementById('btnGestionPagosMoras');
-    const filtroParticipante = document.getElementById('filtroParticipante');
-    const tablaPagosCuerpo = document.getElementById('tablaPagosCuerpo');
-    const totalMora = document.getElementById('totalMora');
-    const btnConsultar = document.querySelector('.consultar');
-    const btnPagarMoras = document.getElementById('pagarMoras');
+    // Botones navegación
+    document.getElementById('btnPrestamos').addEventListener('click', () => {
+        window.location.href = '/Moras/moras_prestamos/moras_prestamos.html';
+    });
 
-    // Cerrar sesión
-    btnCerrarSesion.addEventListener('click', function () {
+    document.getElementById('btnGestionPagosMoras').addEventListener('click', () => {
+        window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
+    });
+
+    document.getElementById('btnCerrarSesion').addEventListener('click', () => {
         localStorage.removeItem('adminActivo');
         window.location.href = '/Login/login.html';
     });
 
+    const tablaCuerpo = document.querySelector('#tablaPagosCuerpo');
+    const selectFiltro = document.getElementById('filtroParticipante');
+    const btnConsultar = document.querySelector('.consultar');
+    const totalTexto = document.getElementById('totalMora');
+    const tipoMora = 'ahorros';
+    let pagosConMora = [];
 
-
-    // Funcion para ir a pestaña prestamos
-    btnPrestamos.addEventListener('click', function(event) {
-        event.preventDefault();
-
-        window.location.href = '/Moras/moras_prestamos/moras_prestamos.html';
-    });
-
-    // Funcion para ir a pestaña gestion pagos de moras
-    btnGestionPagosMoras.addEventListener('click', function(event) {
-        event.preventDefault();
-
-        window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
-    });
-
-    // Ir a Pagar moras
-    document.getElementById('pagarMoras').addEventListener('click', function(e) {
-        e.preventDefault();
-        localStorage.setItem('tipoMora', 'ahorros');
-        window.location.href = '/Moras/pagos_moras.html';
-    });
-
-
-
-    // Cargar participantes con mora (solo si hay mora pendiente)
-try {
-    const fondoRes = await fetch('http://localhost:3000/api/fondos/actual');
-    const fondoActual = await fondoRes.json();
-
-    const participantesRes = await fetch('http://localhost:3000/api/participantes');
-    const participantes = await participantesRes.json();
-
-    const usuarios = participantes.filter(p =>
-        p.rol === 'Usuario' && p.fondo === fondoActual.nombre
-    );
-
-    for (const usuario of usuarios) {
-        const pagosRes = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
-        const pagos = await pagosRes.json();
-
-        let tieneMoraPendiente = false;
-
-        for (const p of pagos) {
-            const fPago = new Date(p.fecha_pago);
-            const fLimite = new Date(p.fecha_limite_pago);
-            const diasMora = Math.max(0, Math.ceil((fPago - fLimite) / (1000 * 60 * 60 * 24)));
-
-            if (diasMora > 0) {
-                const moraTotal = diasMora * 1000;
-
-                const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${p.id}`);
-                const { total_abonado } = await abonoRes.json();
-                const abono = total_abonado ?? 0;
-
-                const moraPendiente = moraTotal - abono;
-
-                if (moraPendiente > 0) {
-                    tieneMoraPendiente = true;
-                    break;
-                }
-            }
-        }
-
-        if (tieneMoraPendiente) {
-            const option = document.createElement('option');
-            option.value = usuario.nombre;
-            option.textContent = usuario.nombre;
-            filtroParticipante.appendChild(option);
-        }
-    }
-} catch (error) {
-    console.error('Error al cargar participantes con mora:', error);
-}
-
-
-    // Formatear fecha
-    function formatearFecha(fechaStr) {
-        const fecha = new Date(fechaStr);
-        if (isNaN(fecha)) return '';
-        const dia = fecha.getDate().toString().padStart(2, '0');
-        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    // Función para formatear fechas
+    function formatearFecha(fechaISO) {
+        const fecha = new Date(fechaISO);
+        const dia = String(fecha.getDate()).padStart(2, '0');
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
         const anio = fecha.getFullYear();
         return `${dia}/${mes}/${anio}`;
     }
 
-    // Consultar pagos con mora
-    btnConsultar.addEventListener('click', async () => {
-        const nombre = filtroParticipante.value;
-        if (!nombre) {
-            alert('Selecciona un participante.');
+    try {
+        console.log('Cargando fondo actual...');
+        const fondoRes = await fetch('http://localhost:3000/api/fondos/actual');
+        if (!fondoRes.ok) throw new Error('Error al obtener fondo actual');
+        const fondoActual = await fondoRes.json();
+
+        console.log('Cargando participantes...');
+        const participantesRes = await fetch('http://localhost:3000/api/participantes');
+        if (!participantesRes.ok) throw new Error('Error al obtener participantes');
+        const participantes = await participantesRes.json();
+
+        const usuarios = participantes.filter(p => p.rol === 'Usuario' && p.fondo === fondoActual.nombre);
+        const nombresSet = new Set();
+
+        for (const usuario of usuarios) {
+            console.log(`Cargando pagos de: ${usuario.nombre}`);
+            const pagosRes = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
+            if (!pagosRes.ok) throw new Error(`Error al obtener pagos de ${usuario.nombre}`);
+            const pagos = await pagosRes.json();
+
+            for (const pago of pagos) {
+                const fPago = new Date(pago.fecha_pago);
+                const fLimite = new Date(pago.fecha_limite_pago);
+                const diasMora = Math.max(0, Math.ceil((fPago - fLimite) / (1000 * 60 * 60 * 24)));
+
+                if (diasMora > 0) {
+                    const moraTotal = diasMora * 1000;
+
+                    console.log(`Consultando abonos de pago ID ${pago.id}`);
+                    const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${pago.id}`);
+                    if (!abonoRes.ok) throw new Error(`Error al obtener abonos de ${pago.id}`);
+                    const { total_abonado } = await abonoRes.json();
+                    const abonado = total_abonado ?? 0;
+                    const restante = moraTotal - abonado;
+
+                    if (restante > 0) {
+                        pagosConMora.push({
+                            ...pago,
+                            diasMora,
+                            abonado,
+                            restante,
+                            moraTotal
+                        });
+                        nombresSet.add(pago.nombre);
+                    }
+                }
+            }
+        }
+
+        [...nombresSet].sort().forEach(nombre => {
+            const option = document.createElement('option');
+            option.value = nombre;
+            option.textContent = nombre;
+            selectFiltro.appendChild(option);
+        });
+
+        mostrarTabla(); // Mostrar todos inicialmente
+
+    } catch (err) {
+        console.error('❌ Error cargando pagos de mora:', err);
+        alert('Error al cargar los datos.');
+    }
+
+    // Mostrar tabla
+    function mostrarTabla(filtro = '') {
+        tablaCuerpo.innerHTML = '';
+        let totalRestante = 0;
+
+        const datosFiltrados = filtro
+            ? pagosConMora.filter(p => p.nombre === filtro)
+            : pagosConMora;
+
+        if (datosFiltrados.length === 0) {
+            const row = tablaCuerpo.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 7;
+            cell.textContent = 'No se encontraron moras para el participante.';
+            cell.style.textAlign = 'center';
+            totalTexto.textContent = '$ 0';
             return;
         }
 
-        try {
-            const res = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(nombre)}`);
-            const pagos = await res.json();
+        datosFiltrados.forEach(pago => {
+            const row = tablaCuerpo.insertRow();
+            row.insertCell().textContent = pago.nombre;
+            row.insertCell().textContent = formatearFecha(pago.fecha_pago);
+            row.insertCell().textContent = formatearFecha(pago.fecha_limite_pago);
+            row.insertCell().textContent = `$${pago.valor.toLocaleString('es-CO')}`;
+            row.insertCell().textContent = pago.mes;
+            row.insertCell().textContent = `${pago.diasMora} días`;
 
-            tablaPagosCuerpo.innerHTML = '';
-            let total = 0;
-
-            const pagosConMora = pagos.filter(p => {
-                const fPago = new Date(p.fecha_pago);
-                const fLimite = new Date(p.fecha_limite_pago);
-                return (fPago - fLimite) / (1000 * 60 * 60 * 24) > 0;
+            const btn = document.createElement('button');
+            btn.classList.add('btn-pagar');
+            btn.textContent = 'Pagar';
+            btn.addEventListener('click', () => {
+                localStorage.setItem('tipoMora', tipoMora);
+                localStorage.setItem('pagoAhorroMora', JSON.stringify(pago));
+                localStorage.removeItem('idPagoMoraAhorroEditar');
+                window.location.href = '/Moras/pagos_moras_ahorros/pagos_moras_ahorros.html';
             });
 
-            if (pagosConMora.length === 0) {
-                const row = tablaPagosCuerpo.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 6;
-                cell.textContent = 'Este participante no tiene pagos con mora.';
-                cell.style.textAlign = 'center';
-                totalMora.textContent = '$ 0';
-                return;
-            }
+            const cell = row.insertCell();
+            cell.appendChild(btn);
 
-            for (const p of pagosConMora) {
-                const fPago = new Date(p.fecha_pago);
-                const fLimite = new Date(p.fecha_limite_pago);
-                const diasMora = Math.max(0, Math.ceil((fPago - fLimite) / (1000 * 60 * 60 * 24)));
+            totalRestante += pago.restante;
+        });
 
-                const moraTotal = diasMora * 1000;
+        totalTexto.textContent = `$ ${totalRestante.toLocaleString('es-CO')}`;
+    }
 
-                // Traer abonos ya realizados
-                const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${p.id}`);
-                const { total_abonado } = await abonoRes.json();
-                const abono = total_abonado ?? 0;
-
-                const moraPendiente = moraTotal - abono;
-
-                if (moraPendiente > 0) {
-                    const row = tablaPagosCuerpo.insertRow();
-                    row.insertCell().textContent = p.nombre;
-                    row.insertCell().textContent = `$ ${parseFloat(p.valor).toLocaleString('es-CO')}`;
-                    row.insertCell().textContent = formatearFecha(p.fecha_pago);
-                    row.insertCell().textContent = formatearFecha(p.fecha_limite_pago);
-                    row.insertCell().textContent = p.mes;
-                    row.insertCell().textContent = `${diasMora} días`;
-
-                    total += moraPendiente;
-                }
-            }
-            totalMora.textContent = `$ ${total.toLocaleString('es-CO')}`;
-        } catch (error) {
-            console.error('Error al consultar pagos con mora:', error);
-        }
+    // Evento para filtrar por participante
+    btnConsultar.addEventListener('click', () => {
+        const filtro = selectFiltro.value;
+        mostrarTabla(filtro);
     });
 });
+
