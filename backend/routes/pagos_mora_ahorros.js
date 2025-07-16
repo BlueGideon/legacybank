@@ -1,6 +1,22 @@
 import express from 'express';
-const router = express.Router();
 import db from '../db.js';
+
+const router = express.Router();
+
+// ✅ Obtener todos los pagos de mora por ahorros (ya con nombre del fondo)
+router.get('/', async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT pma.*, f.nombre AS fondo
+            FROM pagos_mora_ahorros pma
+            LEFT JOIN fondos f ON pma.id_fondo = f.id
+        `);
+        res.json(rows);
+    } catch (err) {
+        console.error('Error al obtener pagos de mora:', err);
+        res.status(500).json({ mensaje: 'Error al obtener los pagos de mora' });
+    }
+});
 
 // Obtener el pago original de ahorro (para reconstruir mora, abonado, restante)
 router.get('/original/:id', async (req, res) => {
@@ -18,7 +34,6 @@ router.get('/original/:id', async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener el pago original' });
     }
 });
-
 
 // Consultar total abonado por ID de pago ahorro
 router.get('/abonados/:id', async (req, res) => {
@@ -39,15 +54,15 @@ router.get('/abonados/:id', async (req, res) => {
 // Registrar nuevo pago de mora
 router.post('/', async (req, res) => {
     try {
-        const { nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro } = req.body;
+        const { nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro, id_fondo } = req.body;
 
         const sql = `
             INSERT INTO pagos_mora_ahorros 
-            (nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro, id_fondo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const [result] = await db.query(sql, [nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro]);
+        const [result] = await db.query(sql, [nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro, id_fondo]);
 
         res.json({ mensaje: 'Pago de mora registrado exitosamente', id: result.insertId });
     } catch (err) {
@@ -56,23 +71,12 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Obtener todos los pagos de mora por ahorros
-router.get('/', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM pagos_mora_ahorros');
-        res.json(rows);
-    } catch (err) {
-        console.error('Error al obtener pagos de mora:', err);
-        res.status(500).json({ mensaje: 'Error al obtener los pagos de mora' });
-    }
-});
-
 // Eliminar un pago de mora
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         await db.query('DELETE FROM pagos_mora_ahorros WHERE id = ?', [id]);
-        res.sendStatus(204); // Sin contenido
+        res.sendStatus(204);
     } catch (err) {
         console.error('Error al eliminar pago de mora:', err);
         res.status(500).json({ mensaje: 'Error al eliminar el pago de mora' });
@@ -92,7 +96,6 @@ router.put('/:id', async (req, res) => {
         `;
 
         await db.query(sql, [nombre, fecha_pago, concepto, detalle, valor, id_pago_ahorro, id]);
-
         res.json({ mensaje: 'Pago de mora actualizado correctamente' });
     } catch (err) {
         console.error('Error al actualizar pago de mora:', err);

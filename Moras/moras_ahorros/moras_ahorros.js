@@ -77,7 +77,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                             diasMora,
                             abonado,
                             restante,
-                            moraTotal
+                            moraTotal,
+                            id_fondo: pago.id_fondo
                         });
                         nombresSet.add(pago.nombre);
                     }
@@ -131,11 +132,20 @@ document.addEventListener('DOMContentLoaded', async function () {
             btn.classList.add('btn-pagar');
             btn.textContent = 'Pagar';
             btn.addEventListener('click', () => {
-                localStorage.setItem('tipoMora', tipoMora);
-                localStorage.setItem('pagoAhorroMora', JSON.stringify(pago));
-                localStorage.removeItem('idPagoMoraAhorroEditar');
-                window.location.href = '/Moras/pagos_moras_ahorros/pagos_moras_ahorros.html';
-            });
+    const pagoSeleccionado = {
+        id: pago.id,
+        nombre: pago.nombre,
+        fecha_pago: pago.fecha_pago,
+        fecha_limite_pago: pago.fecha_limite_pago,
+        id_fondo: pago.id_fondo   // ✅ Aseguramos el fondo
+    };
+
+    localStorage.setItem('tipoMora', tipoMora);
+    localStorage.setItem('pagoAhorroMora', JSON.stringify(pagoSeleccionado));
+    localStorage.removeItem('idPagoMoraAhorroEditar');
+    window.location.href = '/Moras/pagos_moras_ahorros/pagos_moras_ahorros.html';
+});
+
 
             const cell = row.insertCell();
             cell.appendChild(btn);

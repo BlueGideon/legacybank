@@ -13,6 +13,69 @@ router.get('/usuarios', async (req, res) => {
     }
 });
 
+// ✅ Obtener participantes filtrados por fondo, participante y puesto
+router.get('/filtrados', async (req, res) => {
+    const { fondo, participante, puesto } = req.query;
+
+    try {
+        let sql = `SELECT * FROM participantes WHERE 1=1`;
+
+        const params = [];
+
+        if (fondo) {
+            sql += ` AND fondo = ?`;
+            params.push(fondo);
+        }
+
+        if (participante) {
+            sql += ` AND nombre = ?`;
+            params.push(participante);
+        }
+
+        if (puesto) {
+            sql += ` AND puesto = ?`;
+            params.push(puesto);
+        }
+
+        sql += ` AND rol = 'Usuario'`;
+
+        const [resultados] = await db.query(sql, params);
+        res.json(resultados);
+
+    } catch (err) {
+        console.error('Error al filtrar participantes:', err);
+        res.status(500).json({ mensaje: 'Error al filtrar participantes' });
+    }
+});
+
+// ✅ Actualizar solo perfil de administrador
+router.put('/perfil-admin/:id', async (req, res) => {
+    try {
+        const { nombre, correo, telefono } = req.body;
+        const sql = `UPDATE participantes 
+                     SET nombre = ?, correo = ?, telefono = ?
+                     WHERE id = ? AND rol = 'Administrador'`;
+        await db.query(sql, [nombre, correo, telefono, req.params.id]);
+        res.json({ mensaje: 'Perfil de administrador actualizado con éxito' });
+    } catch (err) {
+        console.error('Error al actualizar perfil admin:', err);
+        res.status(500).json({ mensaje: 'Error al actualizar perfil admin' });
+    }
+});
+
+// ✅ Cambiar solo la contraseña del administrador
+router.put('/cambiar-contrasena/:id', async (req, res) => {
+    try {
+        const { contrasena } = req.body;
+        const sql = `UPDATE participantes SET contrasena = ? WHERE id = ? AND rol = 'Administrador'`;
+        await db.query(sql, [contrasena, req.params.id]);
+        res.json({ mensaje: 'Contraseña actualizada con éxito' });
+    } catch (err) {
+        console.error('Error al cambiar contraseña:', err);
+        res.status(500).json({ mensaje: 'Error al cambiar contraseña' });
+    }
+});
+
 // Crear participante
 router.post('/', async (req, res) => {
     try {

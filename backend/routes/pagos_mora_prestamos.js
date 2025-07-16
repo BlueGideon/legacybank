@@ -3,12 +3,17 @@ import db from '../db.js';
 
 const router = express.Router();
 
-// Obtener pagos mora por préstamo
+// ✅ Obtener pagos mora por préstamo (ya con nombre del fondo)
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM pagos_mora_prestamos');
+        const [rows] = await db.query(`
+            SELECT pmp.*, f.nombre AS fondo
+            FROM pagos_mora_prestamos pmp
+            LEFT JOIN fondos f ON pmp.id_fondo = f.id
+        `);
         res.json(rows);
     } catch (err) {
+        console.error('Error al obtener pagos de mora de préstamos:', err);
         res.status(500).json({ error: 'Error al obtener pagos de mora de préstamos' });
     }
 });
@@ -29,11 +34,11 @@ router.get('/abonados/:idPago', async (req, res) => {
 
 // Crear nuevo pago mora
 router.post('/', async (req, res) => {
-    const { solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo } = req.body;
+    const { solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo } = req.body;
     try {
         await db.query(
-            'INSERT INTO pagos_mora_prestamos (solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo) VALUES (?, ?, ?, ?, ?, ?)',
-            [solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo]
+            'INSERT INTO pagos_mora_prestamos (solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo]
         );
         res.status(201).json({ mensaje: 'Pago de mora registrado' });
     } catch (err) {
@@ -53,11 +58,10 @@ router.put('/:id', async (req, res) => {
         );
         res.json({ mensaje: 'Pago de mora actualizado' });
     } catch (err) {
-        console.error('Error en backend:', err); // 👈 log importante
+        console.error('Error en backend:', err);
         res.status(500).json({ error: 'Error al actualizar pago de mora' });
     }
 });
-
 
 // Obtener un pago mora por ID
 router.get('/:id', async (req, res) => {
@@ -84,6 +88,5 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el pago de mora' });
     }
 });
-
 
 export default router;

@@ -5,13 +5,21 @@ import db from '../db.js';
 // Obtener prestamos por solicitante
 router.get('/por-solicitante/:nombre', async (req, res) => {
     try {
-        const [results] = await db.query('SELECT * FROM prestamos WHERE solicitante = ?', [req.params.nombre]);
-        if (results.length === 0) return res.status(404).json({ message: 'Préstamo no encontrado' });
-        res.json(results[0]);
+        const [results] = await db.query(
+            'SELECT * FROM prestamos WHERE solicitante = ?',
+            [req.params.nombre]
+        );
+
+        if (results.length === 0) {
+            return res.json([]); // ✅ Devolvemos array vacío en lugar de 404
+        }
+
+        res.json(results); // ✅ Devolvemos SIEMPRE un array
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
 
 // Crear nuevo préstamo
 router.post('/', async (req, res) => {
@@ -22,34 +30,48 @@ router.post('/', async (req, res) => {
             valorCuota, ganancia, valorTotalPagar
         } = req.body;
 
+        // ✅ Obtener el fondo actual
+        const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoActual.length) {
+            return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+        }
+        const fondoId = fondoActual[0].id;
+
         const sql = `
             INSERT INTO prestamos 
-            (fprestamo, nombre, solicitante, vprestamo, selecciontasa, ncuotas, valorInteres, valorCuota, ganancia, valorTotalPagar)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (fprestamo, nombre, solicitante, vprestamo, selecciontasa, ncuotas, valorInteres, valorCuota, ganancia, valorTotalPagar, fondo_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-
-        const [result] = await db.query(sql, [
+        await db.query(sql, [
             fprestamo, nombre, solicitante, vprestamo,
             selecciontasa, ncuotas, valorInteres,
-            valorCuota, ganancia, valorTotalPagar
+            valorCuota, ganancia, valorTotalPagar,
+            fondoId
         ]);
 
-        res.status(201).json({ mensaje: 'Préstamo guardado con éxito', id: result.insertId });
+        res.status(201).json({ mensaje: 'Préstamo guardado con éxito' });
     } catch (err) {
         console.error('❌ Error al guardar préstamo:', err);
         res.status(500).json({ mensaje: 'Error al guardar el préstamo' });
     }
 });
 
+
 // Obtener todos los préstamos
 router.get('/', async (req, res) => {
     try {
-        const [results] = await db.query('SELECT * FROM prestamos ORDER BY id DESC');
+        const [results] = await db.query(`
+            SELECT p.*, f.nombre AS fondo
+            FROM prestamos p
+            JOIN fondos f ON p.fondo_id = f.id
+            ORDER BY p.id DESC
+        `);
         res.json(results);
     } catch (err) {
         res.status(500).json({ mensaje: 'Error al obtener préstamos' });
     }
 });
+
 
 // Obtener préstamo por ID
 router.get('/:id', async (req, res) => {

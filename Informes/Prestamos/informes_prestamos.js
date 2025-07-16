@@ -1,48 +1,40 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const admin = JSON.parse(localStorage.getItem('adminActivo'));
-
-    if (!admin) {
-        alert('Debes iniciar sesión para acceder a esta página.');
-        window.location.href = '/Login/login.html';
-        return;
-    }
-
-    // Si el admin está logueado, continúa con el resto de tu lógica...
-
-    const btnCrearFondo = document.getElementById('btnCrearFondo');
-
-    const btnCerrarSesion = document.getElementById('btnCerrarSesion');
-
-    const btnAhorros = document.getElementById('btnAhorros');
-    const btnParticipantes = document.getElementById('btnParticipantes');
-    const btnIngresosGastos = document.getElementById('btnIngresosGastos');
-
-    const btnGestionFondos = document.getElementById('btnGestionFondos');
-
-    // Funcion para cerrar sesion
-    btnCerrarSesion.addEventListener('click', function(event) {
-    event.preventDefault();
-
-    // Elimina la sesión activa (ajusta el nombre si usas otro)
-    localStorage.removeItem('adminActivo');
-
-    // Redirige al login
+document.addEventListener('DOMContentLoaded', function () {
+  const admin = JSON.parse(localStorage.getItem('adminActivo'));
+  if (!admin) {
+    alert('Debes iniciar sesión');
     window.location.href = '/Login/login.html';
-});
+    return;
+  }
 
+  const filtroTipo = document.getElementById('filtroTipoPrestamo');
+  const filtroParticipante = document.getElementById('filtroParticipante');
+  const filtroAno = document.getElementById('filtroAno');
+  const filtroMes = document.getElementById('filtroMes');
+  const tablaEncabezado = document.getElementById('tablaEncabezado');
+  const tablaCuerpo = document.getElementById('tablaPagosCuerpo');
+  const totalPrestado = document.getElementById('totalPrestado');
+  const btnGenerar = document.querySelector('.generar-informe');
+  const btnDescargar = document.getElementById('descargarInforme');
+
+  // Cerrar sesión
+    document.getElementById('btnCerrarSesion').addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem('adminActivo');
+        window.location.href = '/Login/login.html';
+    });
+
+  // Funcion para ir a pestaña participantes
+    btnParticipantes.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        window.location.href = '/Informes/Participantes/informes_participantes.html';
+    });
 
     // Funcion para ir a pestaña ahorros
     btnAhorros.addEventListener('click', function(event) {
         event.preventDefault();
 
         window.location.href = '/Informes/Ahorros/informes_ahorros.html';
-    });
-
-    // Funcion para ir a pestaña participantes
-    btnParticipantes.addEventListener('click', function(event) {
-        event.preventDefault();
-
-        window.location.href = '/Informes/Participantes/informes_participantes.html';
     });
 
     // Funcion para ir a pestaña ingresos y gastos
@@ -52,217 +44,188 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/Informes/IngresosGastos/informes_ingresosgastos.html';
     });
 
-    const filtroTipo = document.getElementById('filtroTipoPrestamo');
-    const filtroParticipante = document.getElementById('filtroParticipante');
-    const filtroAno = document.getElementById('filtroAno');
-    const filtroMes = document.getElementById('filtroMes');
-    const tablaEncabezado = document.getElementById('tablaEncabezado');
-    const tablaCuerpo = document.getElementById('tablaPagosCuerpo');
-    const totalPrestado = document.getElementById('totalPrestado');
-    const btnGenerar = document.querySelector('.generar-informe');
+  (async function cargarFiltros() {
+    const prestamos = await fetch('http://localhost:3000/api/prestamos').then(r => r.json());
+    const pagos = await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
 
-    let datosPrestamos = JSON.parse(localStorage.getItem('prestamosCreados')) || [];
-    let datosPagos = JSON.parse(localStorage.getItem('pagosPrestamos')) || [];
+    filtroParticipante.innerHTML = '<option disabled selected>Selecciona participante/solicitante</option>';
+    filtroAno.innerHTML = '<option disabled selected>Selecciona el año</option>';
+    filtroMes.innerHTML = '<option disabled selected>Selecciona el mes</option>';
 
-    filtroTipo.addEventListener('change', () => {
-        filtroParticipante.innerHTML = `<option disabled selected>Selecciona el participante/solicitante</option>`;
-        filtroAno.innerHTML = `<option disabled selected>Selecciona el año</option>`;
-        filtroMes.innerHTML = `<option disabled selected>Selecciona el mes</option>`;
+    filtroTipo.addEventListener('change', actualizarParticipantes);
 
-        const tipo = filtroTipo.value;
+    function actualizarParticipantes() {
+      filtroParticipante.innerHTML = '<option disabled selected>Selecciona participante/solicitante</option>';
+      const tipo = filtroTipo.value;
+      const setNoms = new Set(tipo === 'Préstamos' ? prestamos.map(p => p.nombre) : pagos.map(p => p.solicitante));
+      for (let nom of [...setNoms].sort()) {
+        const opt = document.createElement('option');
+        opt.value = nom;
+        opt.textContent = nom;
+        filtroParticipante.appendChild(opt);
+      }
+      filtroAno.innerHTML = '<option disabled selected>Selecciona el año</option>';
+      filtroMes.innerHTML = '<option disabled selected>Selecciona el mes</option>';
+    }
+  })();
 
-        // Obtener datos según el tipo
-        const datos = tipo === 'Préstamos'
-            ? JSON.parse(localStorage.getItem('prestamosAgregados')) || []
-            : JSON.parse(localStorage.getItem('pagosprestamosAgregados')) || [];
+  filtroParticipante.addEventListener('change', async () => {
+    filtroAno.innerHTML = '<option disabled selected>Selecciona el año</option>';
+    filtroMes.innerHTML = '<option disabled selected>Selecciona el mes</option>';
+    const tipo = filtroTipo.value;
+    const part = filtroParticipante.value;
+    let datos = tipo === 'Préstamos'
+      ? await fetch('http://localhost:3000/api/prestamos').then(r => r.json())
+      : await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
 
-        // Extraer nombres únicos correctamente
-        const nombres = [...new Set(datos.map(d => tipo === 'Préstamos' ? d.nombre : d.solicitante))];
-
-        nombres.forEach(nombre => {
-            const option = document.createElement('option');
-            option.value = nombre;
-            option.textContent = nombre;
-            filtroParticipante.appendChild(option);
-        });
+    datos = datos.filter(d => (tipo === 'Préstamos' ? d.nombre : d.solicitante) === part);
+    const anos = new Set(), meses = new Set();
+    datos.forEach(d => {
+      const fecha = new Date(tipo === 'Préstamos' ? d.fprestamo : d.fpago);
+      if (!isNaN(fecha)) {
+        anos.add(fecha.getFullYear());
+        meses.add(fecha.getMonth() + 1);
+      }
     });
+    for (let año of [...anos].sort())
+      filtroAno.appendChild(new Option(año, año));
+    const mesesN = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    for (let m of [...meses].sort())
+      filtroMes.appendChild(new Option(mesesN[m - 1], m));
+  });
 
-    filtroParticipante.addEventListener('change', () => {
-        filtroAno.innerHTML = `<option disabled selected>Selecciona el año</option>`;
-        filtroMes.innerHTML = `<option disabled selected>Selecciona el mes</option>`;
+  btnGenerar.addEventListener('click', async () => {
+    const tipo = filtroTipo.value, part = filtroParticipante.value;
+    const ano = filtroAno.value ? parseInt(filtroAno.value) : null;
+    const mes = filtroMes.value ? parseInt(filtroMes.value) : null;
+    if (!tipo || !part) {
+      alert('Selecciona tipo y participante/solicitante');
+      return;
+    }
 
-        const tipo = filtroTipo.value;
-        const participante = filtroParticipante.value;
+    const qs = new URLSearchParams({ participante: part });
+    if (ano) qs.set('ano', ano);
+    if (mes) qs.set('mes', mes);
+    const endpoint = tipo === 'Préstamos' ? 'prestamos' : 'pagos';
+    const datos = await fetch(`http://localhost:3000/api/informes-prestamos/${endpoint}?${qs}`).then(r => r.json());
 
-        const datos = tipo === 'Préstamos'
-            ? JSON.parse(localStorage.getItem('prestamosAgregados')) || []
-            : JSON.parse(localStorage.getItem('pagosprestamosAgregados')) || [];
+    tablaEncabezado.innerHTML = '';
+    tablaCuerpo.innerHTML = '';
+    totalPrestado.textContent = '$ 0';
 
-        const datosFiltrados = datos.filter(d =>
-            (tipo === 'Préstamos' ? d.nombre : d.solicitante) === participante
-        );
+    if (tipo === 'Préstamos') {
+      tablaEncabezado.innerHTML = `
+        <th>F. Préstamo</th><th>Asociado</th><th>V. Préstamo</th>
+        <th>Tasa</th><th>N° Cuotas</th><th>V. Interés</th>
+        <th>V. Cuotas</th><th>Ganancia</th><th>V. Pagar</th><th>Estado</th>`;
+      const pagosTodos = await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
+      let total = 0;
 
-        const anos = new Set();
-        const meses = new Set();
+      datos.sort((a, b) => new Date(b.fprestamo) - new Date(a.fprestamo));
+      datos.forEach(p => {
+        const vp = parseFloat(p.vprestamo), tasa = parseFloat(p.selecciontasa) / 100;
+        const n = parseInt(p.ncuotas);
+        const vi = vp * tasa;
+        const vcuota = (vp / n) + vi;
+        const gan = vi * n;
+        const tota = vcuota * n;
 
-        datosFiltrados.forEach(d => {
-            const fecha = new Date(tipo === 'Préstamos' ? d.fprestamo : d.fpago);
-            if (!isNaN(fecha)) {
-                anos.add(fecha.getFullYear());
-                meses.add(fecha.getMonth() + 1);
-            }
-        });
+        const pagados = pagosTodos
+          .filter(pp => pp.solicitante === p.solicitante)
+          .reduce((s, pp) => s + parseFloat(pp.vpago), 0);
+        const restante = tota - pagados;
+        const estado = restante <= 0 ? '✅ Cancelado' : '🟡 Vigente';
 
-        [...anos].sort().forEach(ano => {
-            const option = document.createElement('option');
-            option.value = ano;
-            option.textContent = ano;
-            filtroAno.appendChild(option);
-        });
+        const row = tablaCuerpo.insertRow();
+        row.insertCell().textContent = p.fprestamo.slice(0, 10);
+        row.insertCell().textContent = p.nombre;
+        row.insertCell().textContent = `$${vp.toLocaleString('es-CO')}`;
+        row.insertCell().textContent = p.selecciontasa;
+        row.insertCell().textContent = n;
+        row.insertCell().textContent = `$${vi.toLocaleString('es-CO')}`;
+        row.insertCell().textContent = `$${vcuota.toLocaleString('es-CO')}`;
+        row.insertCell().textContent = `$${gan.toLocaleString('es-CO')}`;
+        row.insertCell().textContent = `$${tota.toLocaleString('es-CO')}`;
+        row.insertCell().textContent = estado;
 
-        const nombresMeses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        total += vp;
+      });
 
-        [...meses].sort((a, b) => a - b).forEach(mes => {
-            const option = document.createElement('option');
-            option.value = mes;
-            option.textContent = nombresMeses[mes - 1];
-            filtroMes.appendChild(option);
-        });
-    });
+      totalPrestado.textContent = `$ ${total.toLocaleString('es-CO')}`;
 
+    } else {
+  tablaEncabezado.innerHTML = `
+    <th>Solicitante</th><th>F. Pago</th><th>F. Límite</th>
+    <th>V. Pago</th><th>N° Cuota</th><th>Días Mora</th><th>Restante</th>`;
 
-    btnGenerar.addEventListener('click', () => {
-        const tipo = filtroTipo.value;
-        const participante = filtroParticipante.value;
-        const ano = parseInt(filtroAno.value);
-        const mes = parseInt(filtroMes.value);
+  const prestamos = await fetch('http://localhost:3000/api/prestamos').then(r => r.json());
 
-        if (!tipo || !participante) {
-            alert('Selecciona tipo y participante/solicitante');
-            return;
-        }
+  // ✅ Agrupar pagos por idPrestamo
+  const pagosAgrupados = {};
+  datos.forEach(p => {
+    if (!pagosAgrupados[p.idPrestamo]) pagosAgrupados[p.idPrestamo] = [];
+    pagosAgrupados[p.idPrestamo].push(p);
+  });
 
-        const datos = tipo === 'Préstamos'
-            ? JSON.parse(localStorage.getItem('prestamosAgregados')) || []
-            : JSON.parse(localStorage.getItem('pagosprestamosAgregados')) || [];
+  let total = 0;
 
-        const datosFiltrados = datos.filter(d => {
-            const nombre = tipo === 'Préstamos' ? d.nombre : d.solicitante;
-            const fecha = new Date(tipo === 'Préstamos' ? d.fprestamo : d.fpago);
-            return nombre === participante &&
-                (!isNaN(ano) ? fecha.getFullYear() === ano : true) &&
-                (!isNaN(mes) ? fecha.getMonth() + 1 === mes : true);
-        });
+  for (let idPrestamo in pagosAgrupados) {
+  const pagosDelPrestamo = pagosAgrupados[idPrestamo];
+  const prestamo = prestamos.find(p => p.id === parseInt(idPrestamo));
+  if (!prestamo) continue;
 
-        // Limpiar encabezado y cuerpo
-        tablaEncabezado.innerHTML = '';
-        tablaCuerpo.innerHTML = '';
-        totalPrestado.textContent = '$ 0';
+  const totalPrestamo = parseFloat(prestamo.valorTotalPagar);
 
-        if (tipo === 'Préstamos') {
-            tablaEncabezado.innerHTML = `
-                <th>F. Préstamo</th>
-                <th>Asociado A</th>
-                <th>Valor Préstamo</th>
-                <th>Tasa Interés</th>
-                <th>N° Cuota(s)</th>
-                <th>V. Interés</th>
-                <th>V. Cuotas</th>
-                <th>Ganancia</th>
-                <th>V. A Pagar</th>
-                <th>Estado</th>
-            `;
+  // ✅ Ordenar por fecha ASCENDENTE para calcular acumulado correctamente
+  const pagosAsc = pagosDelPrestamo.sort((a, b) => new Date(a.fpago) - new Date(b.fpago));
+  
+  // Recorremos pagos acumulando para calcular el restante
+  let acumulado = 0;
+  const pagosConRestante = pagosAsc.map(p => {
+    const vp = parseFloat(p.vpago);
+    acumulado += vp;
+    return {
+      ...p,
+      restante: Math.max(totalPrestamo - acumulado, 0)
+    };
+  });
 
-            let total = 0;
+  // ✅ Mostrar los pagos de forma DESCENDENTE pero con restante correcto
+  const pagosParaMostrar = pagosConRestante.sort((a, b) => new Date(b.fpago) - new Date(a.fpago));
 
-            datosFiltrados.forEach(p => {
-                const row = tablaCuerpo.insertRow();
-                row.insertCell().textContent = p.fprestamo;
-                row.insertCell().textContent = p.nombre;
-                row.insertCell().textContent = `$${parseFloat(p.vprestamo || 0).toLocaleString()}`;
-                row.insertCell().textContent = p.selecciontasa;
-                row.insertCell().textContent = p.ncuotas || 0;
-                row.insertCell().textContent = `$${parseFloat(p.valorInteres).toLocaleString()}`;
-                row.insertCell().textContent = `$${parseFloat(p.valorCuota).toLocaleString()}`;
-                row.insertCell().textContent = `$${parseFloat(p.ganancia || 0).toLocaleString()}`;
-                row.insertCell().textContent = `$${parseFloat(p.valorTotalPagar).toLocaleString()}`;
+  pagosParaMostrar.forEach(p => {
+    let dias = 'No disponible';
+    if (p.fpago && p.flpago) {
+      const dF = new Date(p.fpago), dL = new Date(p.flpago);
+      const dif = Math.floor((dF - dL) / (1000 * 60 * 60 * 24));
+      dias = dif < 0 ? `✅ ${Math.abs(dif)} días antes` :
+             dif === 0 ? `🟡 mismo día` :
+             `⚠️ ${dif} días tarde`;
+    }
 
-                // Calcular cuánto ha pagado el solicitante
-                const pagos = JSON.parse(localStorage.getItem('pagosprestamosAgregados')) || [];
-                const pagosSolicitante = pagos
-                    .filter(pp => pp.solicitante === p.solicitante)
-                    .reduce((sum, pp) => sum + parseFloat(pp.vpago || 0), 0);
+    const row = tablaCuerpo.insertRow();
+    row.insertCell().textContent = prestamo.solicitante;
+    row.insertCell().textContent = p.fpago.slice(0, 10);
+    row.insertCell().textContent = p.flpago ? p.flpago.slice(0, 10) : '';
+    row.insertCell().textContent = `$${parseFloat(p.vpago).toLocaleString('es-CO')}`;
+    row.insertCell().textContent = p.cuotaAPagar || '1';
+    row.insertCell().textContent = dias;
+    row.insertCell().textContent = `$${p.restante.toLocaleString('es-CO')}`;
 
-                const restante = parseFloat(p.valorTotalPagar) - pagosSolicitante;
-                const estado = restante <= 0 ? '✅ Cancelado' : '🟡 Vigente';
-
-                row.insertCell().textContent = estado;
-
-                total += parseFloat(p.vprestamo || 0);
-            });
+    total += parseFloat(p.vpago);
+  });
+}
 
 
-            totalPrestado.textContent = `$ ${total.toLocaleString('es-CO')}`;
+  totalPrestado.textContent = `$ ${total.toLocaleString('es-CO')}`;
+}
 
-        } else if (tipo === 'Pagos de Préstamos') {
-            tablaEncabezado.innerHTML = `
-                <th>Solicitante</th>
-                <th>F. Pago</th>
-                <th>F. Límite Pago</th>
-                <th>V. Pago</th>
-                <th>N° Cuota</th>
-                <th>Días de Mora</th>
-                <th>Restante a Pagar</th>
-            `;
+  });
 
-            let total = 0;
-
-            // Ordenar por fecha de pago descendente
-            datosFiltrados.sort((a, b) => new Date(b.fpago) - new Date(a.fpago));
-
-            datosFiltrados.forEach(p => {
-                const row = tablaCuerpo.insertRow();
-                row.insertCell().textContent = p.solicitante;
-                row.insertCell().textContent = p.fpago;
-                row.insertCell().textContent = p.flpago;
-                row.insertCell().textContent = `$${parseFloat(p.vpago).toLocaleString()}`;
-                row.insertCell().textContent = p.nCuotas;
-
-                const fechaPago = new Date(p.fpago);
-                const fechaLimite = new Date(p.flpago); // usando flpago como fecha límite
-                const restante = parseFloat(p.restante);
-
-                let moraText = "No disponible";
-                if (!isNaN(fechaPago) && !isNaN(fechaLimite)) {
-                    const diasMora = Math.ceil((fechaPago - fechaLimite) / (1000 * 60 * 60 * 24));
-                    moraText = diasMora < 0
-                        ? `✅ ${Math.abs(diasMora)} días antes`
-                        : diasMora === 0
-                            ? `🟡 mismo día`
-                            : `⚠️ ${diasMora} días tarde`;
-                }
-
-                row.insertCell().textContent = moraText;                
-                row.insertCell().textContent = isNaN(restante) ? 'No calculado' : `$${restante.toLocaleString('es-CO')}`;
-
-                total += parseFloat(p.vpago);
-            });
-
-            totalPrestado.textContent = `$ ${total.toLocaleString('es-CO')}`;
-        }
-    });
-
-    const btnDescargarInforme = document.getElementById('descargarInforme');
-
-    btnDescargarInforme.addEventListener('click', () => {
-        const tabla = document.querySelector('.tabla'); // La tabla del informe
-
-        // Convertir la tabla a una hoja de cálculo
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.table_to_sheet(tabla);
-        XLSX.utils.book_append_sheet(wb, ws, 'Informe');
-
-        // Descargar el archivo Excel
-        XLSX.writeFile(wb, 'Informe_Prestamos.xlsx');
-    });
+  btnDescargar.addEventListener('click', () => {
+    const ws = XLSX.utils.table_to_sheet(document.querySelector('.tabla'));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Informe');
+    XLSX.writeFile(wb, 'Informe_Prestamos.xlsx');
+  });
 });

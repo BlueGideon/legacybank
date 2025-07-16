@@ -148,7 +148,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     concepto: conceptoInput.value.trim(),
                     detalle: detalleParseado.descripcion,
                     valor: parseFloat(valor.value),
-                    id_pago_prestamo: detalleParseado.id  // ✅ Importante en CREACIÓN
+                    id_pago_prestamo: detalleParseado.id,  // ✅ Importante en CREACIÓN
+                    id_fondo: pago.id_fondo
                 };
 
                 if (

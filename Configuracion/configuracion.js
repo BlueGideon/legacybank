@@ -23,16 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Funcion editar perfil
-    document.getElementById('perfilAdmin').addEventListener('click', () => {
-        localStorage.setItem('modoEditarPerfilAdmin', 'true');
-        window.location.href = '/Participantes/Anadir_Participante/anadir_participante.html';
-    });
+document.getElementById('perfilAdmin').addEventListener('click', () => {
+    localStorage.removeItem('modoCambiarContrasenaAdmin');
+    localStorage.setItem('modoEditarPerfilAdmin', 'true');
+    window.location.href = '/Participantes/Anadir_Participante/anadir_participante.html';
+});
 
-    // Funcion cambiar contraseña
+    // ✅ Funcion cambiar contraseña
     document.getElementById('cambiarContrasena').addEventListener('click', function () {
-        localStorage.setItem('modoCambioContrasena', 'true');
+        localStorage.setItem('modoCambiarContrasenaAdmin', 'true');
         window.location.href = '/Participantes/Anadir_Participante/anadir_participante.html';
     });
-
 
 });

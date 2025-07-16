@@ -161,7 +161,8 @@ const modoEdicion = !!idEditar;
                     concepto: conceptoInput.value.trim(),
                     detalle: detalleParseado.descripcion,
                     valor: parseFloat(valor.value),
-                    id_pago_ahorro: detalleParseado.id  // ✅ Importante en CREACIÓN
+                    id_pago_ahorro: detalleParseado.id,  // ✅ Importante en CREACIÓN
+                    id_fondo: pago.id_fondo
                 };
 
                 if (

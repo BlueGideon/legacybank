@@ -5,7 +5,12 @@ import db from '../db.js';
 // Obtener pagos por nombre (para informes)
 router.get('/por-nombre/:nombre', async (req, res) => {
     try {
-        const [resultados] = await db.query('SELECT * FROM pagos_ahorros WHERE nombre = ?', [req.params.nombre]);
+        const [resultados] = await db.query(
+            `SELECT pa.*, pa.fondo_id AS id_fondo
+             FROM pagos_ahorros pa
+             WHERE pa.nombre = ?`,
+            [req.params.nombre]
+        );
         res.json(resultados);
     } catch (err) {
         console.error('Error al obtener pagos por nombre:', err);
@@ -13,15 +18,26 @@ router.get('/por-nombre/:nombre', async (req, res) => {
     }
 });
 
-// Crear nuevo pago de ahorro
+
+// Crear nuevo pago de ahorro con fondo_id
 router.post('/', async (req, res) => {
     try {
         const { nombre, puesto, valor, fecha_pago, fecha_limite_pago, mes, dias_mora } = req.body;
+
+        // ✅ Obtener el fondo actual
+        const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoActual.length) {
+            return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+        }
+        const fondoId = fondoActual[0].id;
+
         const sql = `
-            INSERT INTO pagos_ahorros (nombre, puesto, valor, fecha_pago, fecha_limite_pago, mes, dias_mora)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO pagos_ahorros 
+            (nombre, puesto, valor, fecha_pago, fecha_limite_pago, mes, dias_mora, fondo_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        await db.query(sql, [nombre, puesto, valor, fecha_pago, fecha_limite_pago, mes, dias_mora]);
+        await db.query(sql, [nombre, puesto, valor, fecha_pago, fecha_limite_pago, mes, dias_mora, fondoId]);
+
         res.json({ mensaje: 'Pago de ahorro guardado exitosamente' });
     } catch (err) {
         console.error('Error al guardar pago de ahorro:', err);
@@ -29,16 +45,22 @@ router.post('/', async (req, res) => {
     }
 });
 
+
 // Obtener todos los pagos de ahorro
 router.get('/', async (req, res) => {
     try {
-        const [resultados] = await db.query('SELECT * FROM pagos_ahorros');
+        const [resultados] = await db.query(`
+            SELECT pa.*, f.nombre AS fondo
+            FROM pagos_ahorros pa
+            JOIN fondos f ON pa.fondo_id = f.id
+        `);
         res.json(resultados);
     } catch (err) {
         console.error('Error al obtener pagos de ahorro:', err);
         res.status(500).json({ mensaje: 'Error al obtener pagos de ahorro' });
     }
 });
+
 
 // Obtener un solo pago por ID
 router.get('/:id', async (req, res) => {

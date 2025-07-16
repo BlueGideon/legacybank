@@ -19,16 +19,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const idEdicion = localStorage.getItem('prestamoEnEdicionID');
+    let prestamoEnEdicion = null; // Guardamos los datos del préstamo mientras cargan los participantes
 
     if (idEdicion) {
         document.querySelector('h1').textContent = 'Actualizar Préstamo';
         btnAgregarPrestamo.textContent = 'Actualizar Préstamo';
 
+        // Primero traemos el préstamo, pero NO llenamos aún el select
         fetch(`http://localhost:3000/api/prestamos/${idEdicion}`)
             .then(res => res.json())
             .then(prestamo => {
+                prestamoEnEdicion = prestamo;
                 document.getElementById('fechaPrestamo').value = prestamo.fprestamo.split('T')[0];
-                document.getElementById('nombreParticipante').value = prestamo.nombre;
                 document.getElementById('solicitante').value = prestamo.solicitante;
                 document.getElementById('valorPrestamo').value = prestamo.vprestamo;
                 document.getElementById('seleccionTasa').value = prestamo.selecciontasa;
@@ -44,6 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('http://localhost:3000/api/participantes/usuarios')
         .then(res => res.json())
         .then(participantes => {
+            nombreSelect.innerHTML = ''; // Limpiar opciones previas
+
             if (participantes.length === 0) {
                 const opcion = document.createElement('option');
                 opcion.textContent = 'No hay usuarios registrados';
@@ -59,6 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 opcion.setAttribute('data-puesto', part.puesto);
                 nombreSelect.appendChild(opcion);
             });
+
+            // ✅ Si estamos en edición, seleccionamos el nombre correcto AHORA que ya cargó el select
+            if (idEdicion && prestamoEnEdicion) {
+                nombreSelect.value = prestamoEnEdicion.nombre;
+            }
         })
         .catch(err => {
             console.error('Error al cargar participantes:', err);

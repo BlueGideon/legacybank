@@ -1,35 +1,26 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
-
     if (!admin) {
         alert('Debes iniciar sesión para acceder a esta página.');
         window.location.href = '/Login/login.html';
         return;
     }
 
-    // Si el admin está logueado, continúa con el resto de tu lógica...
+    const filtroFondo = document.getElementById('filtroFondo');
+    const filtroParticipante = document.getElementById('filtroTipoParticipante');
+    const filtroPuesto = document.getElementById('filtroPuesto');
+    const btnGenerar = document.querySelector('.generar-informe');
+    const cuerpoTabla = document.getElementById('tablaParticipantesCuerpo');
+    const totalParticipantes = document.getElementById('totalParticipantes');
+    const totalPuesto = document.getElementById('totalPuesto');
+    const btnDescargar = document.getElementById('descargarInforme');
 
-    const btnCrearFondo = document.getElementById('btnCrearFondo');
-
-    const btnCerrarSesion = document.getElementById('btnCerrarSesion');
-
-    const btnAhorros = document.getElementById('btnAhorros');
-    const btnPrestamos = document.getElementById('btnPrestamos');
-    const btnIngresosGastos = document.getElementById('btnIngresosGastos');
-    
-    const btnGestionFondos = document.getElementById('btnGestionFondos');
-
-    // Funcion para cerrar sesion
-    btnCerrarSesion.addEventListener('click', function(event) {
-    event.preventDefault();
-
-    // Elimina la sesión activa (ajusta el nombre si usas otro)
-    localStorage.removeItem('adminActivo');
-
-    // Redirige al login
-    window.location.href = '/Login/login.html';
-});
-
+    // Cerrar sesión
+    document.getElementById('btnCerrarSesion').addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem('adminActivo');
+        window.location.href = '/Login/login.html';
+    });
 
     // Funcion para ir a pestaña ahorros
     btnAhorros.addEventListener('click', function(event) {
@@ -52,109 +43,127 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/Informes/IngresosGastos/informes_ingresosgastos.html';
     });
 
-    const filtroFondo = document.getElementById('filtroFondo');
-    const filtroParticipante = document.getElementById('filtroTipoParticipante');
-    const filtroPuesto = document.getElementById('filtroPuesto');
-    const btnGenerar = document.querySelector('.generar-informe');
-    const cuerpoTabla = document.getElementById('tablaParticipantesCuerpo');
-    const totalParticipantes = document.getElementById('totalParticipantes');
-    const totalPuesto = document.getElementById('totalPuesto');
+    // ✅ 1. Cargar Fondos desde MySQL
+    async function cargarFondos() {
+        filtroFondo.innerHTML = '<option disabled selected>Selecciona fondo</option>';
+        try {
+            const response = await fetch('http://localhost:3000/api/fondos');
+            const fondos = await response.json();
 
-    const fondos = JSON.parse(localStorage.getItem('fondosCreados')) || [];
-    const participantes = JSON.parse(localStorage.getItem('participantesCreados')) || [];
+            fondos.forEach(fondo => {
+                const option = document.createElement('option');
+                option.value = fondo.nombre;
+                option.textContent = fondo.nombre;
+                filtroFondo.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error cargando fondos:', error);
+        }
+    }
 
-    // 1. Llenar el filtro de fondos
-    fondos.forEach(f => {
-        const option = document.createElement('option');
-        option.value = f.nombre;
-        option.textContent = f.nombre;
-        filtroFondo.appendChild(option);
-    });
+    // ✅ 2. Cargar Participantes según Fondo
+    async function cargarParticipantesPorFondo(nombreFondo) {
+        try {
+            const response = await fetch('http://localhost:3000/api/participantes');
+            const todos = await response.json();
 
-    // 2. Cuando se selecciona un fondo, llenar los participantes y puestos
-    filtroFondo.addEventListener('change', () => {
-        const fondoSeleccionado = filtroFondo.value;
+            const participantesDelFondo = todos.filter(p => p.fondo === nombreFondo && p.rol === 'Usuario');
 
-        // Participantes del fondo con rol Usuario
-        const participantesFondo = participantes.filter(p => p.fondo === fondoSeleccionado && p.rol === 'Usuario');
+            // Participantes únicos
+            filtroParticipante.innerHTML = '<option disabled selected>Selecciona Participante</option>';
+            [...new Set(participantesDelFondo.map(p => p.nombre))].forEach(nombre => {
+                const option = document.createElement('option');
+                option.value = nombre;
+                option.textContent = nombre;
+                filtroParticipante.appendChild(option);
+            });
 
-        // Participantes únicos
-        filtroParticipante.innerHTML = '<option disabled selected>Selecciona Participante</option>';
-        [...new Set(participantesFondo.map(p => p.nombre))].forEach(nombre => {
-            const option = document.createElement('option');
-            option.value = nombre;
-            option.textContent = nombre;
-            filtroParticipante.appendChild(option);
-        });
+            // Puestos únicos
+            filtroPuesto.innerHTML = '<option disabled selected>Selecciona el puesto</option>';
+            [...new Set(participantesDelFondo.map(p => p.puesto))].forEach(puesto => {
+                const option = document.createElement('option');
+                option.value = puesto;
+                option.textContent = puesto;
+                filtroPuesto.appendChild(option);
+            });
 
+        } catch (error) {
+            console.error('Error cargando participantes por fondo:', error);
+        }
+    }
 
-        // Puestos únicos
-        filtroPuesto.innerHTML = '<option disabled selected>Selecciona el puesto</option>';
-        [...new Set(participantesFondo.map(p => p.puesto))].forEach(puesto => {
-            const option = document.createElement('option');
-            option.value = puesto;
-            option.textContent = puesto;
-            filtroPuesto.appendChild(option);
-        });
-    });
-
-    // 3. Generar informe
-    btnGenerar.addEventListener('click', () => {
+    // ✅ 3. Generar Informe
+    async function generarInformeParticipantes() {
         const fondo = filtroFondo.value;
         const participante = filtroParticipante.value;
         const puesto = filtroPuesto.value;
 
         if (!fondo || fondo === 'Selecciona fondo') {
-            alert('Selecciona al menos un fondo');
+            alert('Debes seleccionar un fondo');
             return;
         }
 
-        let datosFiltrados = participantes.filter(p => p.fondo === fondo && p.rol === 'Usuario');
+        try {
+            const res = await fetch('http://localhost:3000/api/participantes');
+            const participantes = await res.json();
 
-        if (participante && participante !== 'Selecciona Participante') {
-            datosFiltrados = datosFiltrados.filter(p => p.nombre === participante);
-        }
+            let filtrados = participantes.filter(p => p.fondo === fondo && p.rol === 'Usuario');
 
-        if (puesto && puesto !== 'Selecciona el puesto') {
-            datosFiltrados = datosFiltrados.filter(p => p.puesto === puesto);
-        }
+            if (participante && participante !== 'Selecciona Participante') {
+                filtrados = filtrados.filter(p => p.nombre === participante);
+            }
 
-        // Mostrar en tabla
-        cuerpoTabla.innerHTML = '';
-        if (datosFiltrados.length === 0) {
-            const row = cuerpoTabla.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 7;
-            cell.textContent = 'No hay participantes con esos filtros.';
-            cell.style.textAlign = 'center';
-            cell.style.color = '#fff';
-        } else {
-            datosFiltrados.forEach(p => {
+            if (puesto && puesto !== 'Selecciona el puesto') {
+                filtrados = filtrados.filter(p => p.puesto === puesto);
+            }
+
+            cuerpoTabla.innerHTML = '';
+
+            if (filtrados.length === 0) {
                 const row = cuerpoTabla.insertRow();
-                row.insertCell().textContent = p.nombre;
-                row.insertCell().textContent = p.correo;
-                row.insertCell().textContent = p.telefono;
-                row.insertCell().textContent = p.puesto;
-                row.insertCell().textContent = p.rol;
-                row.insertCell().textContent = p.fondo;
-            });
+                const cell = row.insertCell();
+                cell.colSpan = 7;
+                cell.textContent = 'No hay participantes con esos filtros.';
+                cell.style.textAlign = 'center';
+                cell.style.color = '#fff';
+            } else {
+                filtrados.forEach(p => {
+                    const row = cuerpoTabla.insertRow();
+                    row.insertCell().textContent = p.nombre;
+                    row.insertCell().textContent = p.correo;
+                    row.insertCell().textContent = p.telefono;
+                    row.insertCell().textContent = p.puesto;
+                    row.insertCell().textContent = p.rol;
+                    row.insertCell().textContent = p.fondo;
+                });
+            }
+
+            totalParticipantes.textContent = filtrados.length;
+            totalPuesto.textContent =
+                `${filtrados.filter(p => p.puesto === 'Completo').length} / ${filtrados.filter(p => p.puesto === 'Medio').length}`;
+
+        } catch (error) {
+            console.error('Error generando informe:', error);
         }
+    }
 
-        totalParticipantes.textContent = datosFiltrados.length;
-        totalPuesto.textContent = datosFiltrados.filter(p => p.puesto === 'Completo').length + ' / ' + datosFiltrados.filter(p => p.puesto === 'Medio').length;
-    });
-
-    const btnDescargarInforme = document.getElementById('descargarInforme');
-
-    btnDescargarInforme.addEventListener('click', () => {
-        const tabla = document.querySelector('.tabla'); // La tabla del informe
-
-        // Convertir la tabla a una hoja de cálculo
+    // ✅ 4. Descargar Informe en Excel
+    btnDescargar.addEventListener('click', () => {
+        const tabla = document.querySelector('.tabla');
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.table_to_sheet(tabla);
         XLSX.utils.book_append_sheet(wb, ws, 'Informe');
-
-        // Descargar el archivo Excel
         XLSX.writeFile(wb, 'Informe_Participantes.xlsx');
     });
+
+    // ✅ 5. Eventos
+    filtroFondo.addEventListener('change', () => {
+        const fondo = filtroFondo.value;
+        cargarParticipantesPorFondo(fondo);
+    });
+
+    btnGenerar.addEventListener('click', generarInformeParticipantes);
+
+    // ✅ 6. Inicializar
+    cargarFondos();
 });

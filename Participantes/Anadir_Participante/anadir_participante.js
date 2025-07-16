@@ -7,19 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    btnCerrarSesion.addEventListener('click', function(event) {
-    event.preventDefault();
-
-    // Elimina la sesión activa (ajusta el nombre si usas otro)
-    localStorage.removeItem('adminActivo');
-
-    // Redirige al login
-    window.location.href = '/Login/login.html';
-});
-
-
-    // Si el admin está logueado, continúa con el resto de tu lógica...
-
     const btnCrearParticipante = document.getElementById('btnCrearParticipante');
     const nombreInput = document.getElementById('nombreParticipante');
     const correoInput = document.getElementById('correoElectronico');
@@ -29,30 +16,140 @@ document.addEventListener('DOMContentLoaded', function () {
     const rolSelect = document.getElementById('seleccionRol');
     const cantidadPuestosInput = document.getElementById('cantidadPuestos');
     const fondoInput = document.getElementById('fondoActualAsignado');
+    const tituloFormulario = document.querySelector('.dashboard__titulo');
 
     const idEdicion = localStorage.getItem('participanteEnEdicionId');
+    const esModoPerfilAdmin = localStorage.getItem('modoEditarPerfilAdmin') === 'true';
+    const esModoCambiarContrasena = localStorage.getItem('modoCambiarContrasenaAdmin') === 'true';
 
-    // Mostrar fondo actual desde MySQL SOLO si NO estamos editando
-if (!idEdicion) {
-    fetch('http://localhost:3000/api/fondos/actual')
-        .then(res => res.json())
-        .then(fondo => {
-            fondoInput.value = fondo.nombre || 'Ninguno';
-        })
-        .catch(error => {
-            console.error('Error al obtener fondo actual:', error);
-            fondoInput.value = 'Ninguno';
+    // ✅ --- MODO CAMBIAR CONTRASEÑA ADMIN ---
+    if (esModoCambiarContrasena) {
+        tituloFormulario.textContent = 'Cambiar Contraseña';
+        btnCrearParticipante.textContent = 'Actualizar Contraseña';
+
+        // Ocultar todos los campos menos la contraseña
+        nombreInput.parentElement.style.display = 'none';
+        correoInput.parentElement.style.display = 'none';
+        telefonoInput.parentElement.style.display = 'none';
+        rolSelect.parentElement.style.display = 'none';
+        puestoSelect.parentElement.style.display = 'none';
+        cantidadPuestosInput.parentElement.style.display = 'none';
+        fondoInput.parentElement.style.display = 'none';
+
+        // ✅ Crear input para confirmar contraseña
+        const confirmarDiv = document.createElement('div');
+        confirmarDiv.classList.add('datos__nuevo-participante');
+        confirmarDiv.innerHTML = `
+            <label class="label__nuevo-participante">Confirmar Contraseña</label>
+            <input class="input__nuevo-participante" type="password" id="confirmarContrasena" placeholder="Confirma tu nueva contraseña">
+        `;
+        contrasenaInput.type = 'password';
+        contrasenaInput.placeholder = 'Nueva Contraseña';
+        contrasenaInput.parentElement.after(confirmarDiv);
+
+        const confirmarInput = document.getElementById('confirmarContrasena');
+
+        btnCrearParticipante.addEventListener('click', function () {
+            const nuevaContrasena = contrasenaInput.value.trim();
+            const confirmarContrasena = confirmarInput.value.trim();
+
+            if (!nuevaContrasena || !confirmarContrasena) {
+                return alert('Por favor completa ambos campos.');
+            }
+
+            if (nuevaContrasena !== confirmarContrasena) {
+                return alert('Las contraseñas no coinciden.');
+            }
+
+            fetch(`http://localhost:3000/api/participantes/cambiar-contrasena/${admin.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contrasena: nuevaContrasena })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert('Contraseña actualizada correctamente');
+                    localStorage.removeItem('modoCambiarContrasenaAdmin');
+                    window.location.href = '/Configuracion/configuracion.html';
+                })
+                .catch(error => {
+                    console.error('Error al cambiar contraseña:', error);
+                    alert('Hubo un error al cambiar la contraseña.');
+                });
         });
-}
 
+        return; // ⛔ No seguimos con el resto
+    }
 
-    // Ocultar campos si el rol es Administrador
+    // ✅ --- MODO PERFIL ADMIN ---
+    if (esModoPerfilAdmin) {
+        tituloFormulario.textContent = 'Actualizar Perfil de Administrador';
+        btnCrearParticipante.textContent = 'Actualizar Perfil';
+
+        nombreInput.value = admin.nombre;
+        correoInput.value = admin.correo;
+        telefonoInput.value = admin.telefono;
+
+        contrasenaInput.parentElement.style.display = 'none';
+        rolSelect.parentElement.style.display = 'none';
+        puestoSelect.parentElement.style.display = 'none';
+        cantidadPuestosInput.parentElement.style.display = 'none';
+        fondoInput.parentElement.style.display = 'none';
+
+        btnCrearParticipante.addEventListener('click', function () {
+            const nombre = nombreInput.value.trim();
+            const correo = correoInput.value.trim();
+            const telefono = telefonoInput.value.trim();
+
+            if (!nombre || !correo || !telefono) {
+                return alert('Por favor completa todos los campos obligatorios.');
+            }
+
+            const datosActualizados = { nombre, correo, telefono };
+
+            fetch(`http://localhost:3000/api/participantes/perfil-admin/${admin.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosActualizados)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert('Perfil actualizado correctamente');
+                    admin.nombre = nombre;
+                    admin.correo = correo;
+                    admin.telefono = telefono;
+                    localStorage.setItem('adminActivo', JSON.stringify(admin));
+                    localStorage.removeItem('modoEditarPerfilAdmin');
+                    window.location.href = '/Configuracion/configuracion.html';
+                })
+                .catch(error => {
+                    console.error('Error al actualizar perfil:', error);
+                    alert('Hubo un error al actualizar el perfil.');
+                });
+        });
+
+        return; // ⛔ No seguimos con crear/editar participantes
+    }
+
+    // ✅ --- MODO NORMAL (CREAR / EDITAR PARTICIPANTES) ---
+    if (!idEdicion) {
+        fetch('http://localhost:3000/api/fondos/actual')
+            .then(res => res.json())
+            .then(fondo => {
+                fondoInput.value = fondo.nombre || 'Ninguno';
+            })
+            .catch(error => {
+                console.error('Error al obtener fondo actual:', error);
+                fondoInput.value = 'Ninguno';
+            });
+    }
+
     function toggleCamposPorRol(rol) {
         if (rol === 'Administrador') {
             puestoSelect.parentElement.style.display = 'none';
             cantidadPuestosInput.parentElement.style.display = 'none';
             puestoSelect.value = 'N/A';
-            cantidadPuestosInput.value = '0'; // Para evitar error con DECIMAL
+            cantidadPuestosInput.value = '0';
         } else {
             puestoSelect.parentElement.style.display = '';
             cantidadPuestosInput.parentElement.style.display = '';
@@ -63,7 +160,6 @@ if (!idEdicion) {
         toggleCamposPorRol(rolSelect.value);
     });
 
-    // Cargar datos en modo edición
     if (idEdicion) {
         fetch(`http://localhost:3000/api/participantes/${idEdicion}`)
             .then(res => res.json())
@@ -76,9 +172,7 @@ if (!idEdicion) {
                 puestoSelect.value = participante.puesto;
                 cantidadPuestosInput.value = participante.cantPuestos || '0';
                 fondoInput.value = participante.fondo;
-
-                toggleCamposPorRol(participante.rol); // Oculta si es admin
-
+                toggleCamposPorRol(participante.rol);
                 btnCrearParticipante.textContent = 'Actualizar Participante';
             })
             .catch(error => {
@@ -87,7 +181,6 @@ if (!idEdicion) {
             });
     }
 
-    // Crear o actualizar participante
     btnCrearParticipante.addEventListener('click', function () {
         const nombre = nombreInput.value.trim();
         const correo = correoInput.value.trim();
@@ -98,12 +191,10 @@ if (!idEdicion) {
         let cantPuestos = cantidadPuestosInput.value.trim();
         const fondo = fondoInput.value;
 
-        // Si es Administrador, asegúrate de que sea 0 (número)
         if (rol === 'Administrador') {
             cantPuestos = 0;
         }
 
-        // Validar campos obligatorios
         if (!nombre || !correo || !contrasena || !telefono || !rol || cantPuestos === '') {
             return alert('Por favor completa todos los campos obligatorios.');
         }
@@ -115,7 +206,7 @@ if (!idEdicion) {
             telefono,
             rol,
             puesto,
-            cantPuestos: parseFloat(cantPuestos), // Asegura que se envíe como número
+            cantPuestos: parseFloat(cantPuestos),
             fondo
         };
 
@@ -127,9 +218,7 @@ if (!idEdicion) {
 
         fetch(url, {
             method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos)
         })
             .then(res => res.json())
@@ -144,4 +233,3 @@ if (!idEdicion) {
             });
     });
 });
-

@@ -1,5 +1,3 @@
-// ✅ anadir_pagos_prestamos.js
-
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -13,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const titulo_pagosPrestamos = document.getElementById('titulo_pagosPrestamos');
     const btnAgregarPagoPrestamo = document.getElementById('btnAgregarPagoPrestamo');
     const solicitanteSelect = document.getElementById('solicitante');
+    const prestamoSelect = document.getElementById('prestamo');
 
     btnCerrarSesion.addEventListener('click', function (event) {
         event.preventDefault();
@@ -25,8 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = '/Prestamos/Gestion_Pagos_Prestamos/gestion_pagos_prestamos.html';
     });
 
+    // Cargar solicitantes con préstamos
     fetch('http://localhost:3000/api/prestamos')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(prestamos => {
             const nombresUnicos = [...new Set(prestamos.map(p => p.solicitante))];
             if (nombresUnicos.length === 0) {
@@ -55,41 +55,76 @@ document.addEventListener('DOMContentLoaded', function () {
                             document.getElementById('fechaLimitePago').value = pago.flpago.split('T')[0];
                             document.getElementById('valorPago').value = pago.vpago;
                             document.getElementById('solicitante').dispatchEvent(new Event('change'));
+
                             setTimeout(() => {
-                                document.getElementById('cuotaAPagar').value = pago.cuotaAPagar;
+                                document.getElementById('prestamo').value = pago.idPrestamo;
+                                document.getElementById('prestamo').dispatchEvent(new Event('change'));
+                                setTimeout(() => {
+                                    document.getElementById('cuotaAPagar').value = pago.cuotaAPagar;
+                                }, 300);
                             }, 300);
+
                             titulo_pagosPrestamos.textContent = 'Actualizar Pago Préstamo';
                             btnAgregarPagoPrestamo.textContent = 'Actualizar Pago';
                         }
                     });
             }
-        })
-        .catch(error => console.error('Error al cargar solicitantes:', error));
+        });
 
+    // Al cambiar solicitante, cargar préstamos de ese solicitante
     solicitanteSelect.addEventListener('change', async function () {
-        const solicitanteSeleccionado = solicitanteSelect.value;
+    const solicitante = solicitanteSelect.value;
+    prestamoSelect.innerHTML = '<option value="" disabled selected>Selecciona un préstamo</option>';
+
+    try {
+        const res = await fetch(`http://localhost:3000/api/prestamos/por-solicitante/${encodeURIComponent(solicitante)}`);
+        const prestamos = await res.json();
+        console.log('Préstamos recibidos para', solicitante, prestamos); // ✅ DEPURACIÓN
+
+        if (prestamos.length === 0) {
+            const opcion = document.createElement('option');
+            opcion.textContent = 'No tiene préstamos';
+            opcion.disabled = true;
+            prestamoSelect.appendChild(opcion);
+            return;
+        }
+
+        prestamos.forEach(p => {
+            const opcion = document.createElement('option');
+            opcion.value = p.id;
+            opcion.textContent = `Préstamo: ${Number(p.vprestamo).toLocaleString('es-CO')} - ${p.ncuotas} cuotas`;
+            prestamoSelect.appendChild(opcion);
+        });
+    } catch (err) {
+        console.error('Error cargando préstamos:', err);
+    }
+});
+
+
+    // Al cambiar préstamo, cargar cuotas pendientes
+    prestamoSelect.addEventListener('change', async function () {
+        const idPrestamo = prestamoSelect.value;
         const cuotaSelect = document.getElementById('cuotaAPagar');
         cuotaSelect.innerHTML = '<option value="" disabled selected>Selecciona la cuota</option>';
 
         try {
-            const prestamoRes = await fetch(`http://localhost:3000/api/prestamos/por-solicitante/${encodeURIComponent(solicitanteSeleccionado)}`);
-            const prestamoSolicitante = await prestamoRes.json();
-            const totalCuotas = parseInt(prestamoSolicitante.ncuotas);
+            const prestamoRes = await fetch(`http://localhost:3000/api/prestamos/${idPrestamo}`);
+            const prestamo = await prestamoRes.json();
+            const totalCuotas = parseInt(prestamo.ncuotas);
 
-            const pagosRes = await fetch(`http://localhost:3000/api/pagos-prestamos/por-solicitante/${encodeURIComponent(solicitanteSeleccionado)}`);
-            const pagosSolicitante = await pagosRes.json();
+            const pagosRes = await fetch(`http://localhost:3000/api/pagos-prestamos/por-prestamo/${idPrestamo}`);
+            const pagos = await pagosRes.json();
 
             const idEdicion = localStorage.getItem('pagoPrestamoEnEdicion');
             let cuotaEditando = null;
             if (idEdicion !== null) {
-                const pagosAll = await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
-                const pagoEditando = pagosAll.find(p => p.id == idEdicion);
-                if (pagoEditando?.solicitante === solicitanteSeleccionado) {
+                const pagoEditando = pagos.find(p => p.id == idEdicion);
+                if (pagoEditando) {
                     cuotaEditando = parseInt(pagoEditando.cuotaAPagar);
                 }
             }
 
-            const cuotasPagadas = pagosSolicitante.map(p => parseInt(p.cuotaAPagar)).filter(n => n !== cuotaEditando);
+            const cuotasPagadas = pagos.map(p => parseInt(p.cuotaAPagar)).filter(n => n !== cuotaEditando);
 
             for (let i = 1; i <= totalCuotas; i++) {
                 if (!cuotasPagadas.includes(i) || i === cuotaEditando) {
@@ -100,25 +135,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         } catch (error) {
-            console.error('Error al cargar cuotas:', error);
-            alert('No se pudo obtener la información del préstamo.');
+            console.error('Error al cargar cuotas del préstamo:', error);
         }
     });
 
     btnAgregarPagoPrestamo.addEventListener('click', async function () {
         const solicitante = document.getElementById('solicitante').value;
+        const idPrestamo = document.getElementById('prestamo').value;
         const fechaPago = document.getElementById('fechaPago').value;
         const fechaLimitePago = document.getElementById('fechaLimitePago').value;
         const valorPago = document.getElementById('valorPago').value;
         const cuotaAPagar = document.getElementById('cuotaAPagar').value;
 
-        if (!solicitante || !fechaPago || !fechaLimitePago || !valorPago || !cuotaAPagar) {
+        if (!solicitante || !idPrestamo || !fechaPago || !fechaLimitePago || !valorPago || !cuotaAPagar) {
             alert('Por favor, complete todos los campos.');
             return;
         }
 
         const nuevoPago = {
             solicitante,
+            idPrestamo: parseInt(idPrestamo),
             fpago: fechaPago,
             flpago: fechaLimitePago,
             vpago: parseFloat(valorPago),
@@ -149,3 +185,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+

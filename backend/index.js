@@ -11,6 +11,7 @@ import prestamosRoutes from './routes/prestamos.js';
 import pagosPrestamosRoutes from './routes/pagos_prestamos.js';
 import pagosMoraAhorrosRoutes from './routes/pagos_mora_ahorros.js';
 import pagosMoraPrestamosRoutes from './routes/pagos_mora_prestamos.js';
+import informesPrestamosRoutes from './routes/informes_prestamos.js';
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.use('/api/prestamos', prestamosRoutes);
 app.use('/api/pagos-prestamos', pagosPrestamosRoutes);
 app.use('/api/pagos-mora-ahorros', pagosMoraAhorrosRoutes);
 app.use('/api/pagos-mora-prestamos', pagosMoraPrestamosRoutes);
+app.use('/api/informes-prestamos', informesPrestamosRoutes);
+
 
 // Ruta de prueba
 app.get('/', (req, res) => {
