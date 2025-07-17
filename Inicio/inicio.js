@@ -1,3 +1,6 @@
+import { API_URL } from "/Login/config.js";
+// 👆 Ajusta la ruta si inicio.js no está en la misma carpeta (aquí supongo que Inicio/ y Login/ están al mismo nivel)
+
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -25,15 +28,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             // 1. Obtener fondo actual
-            const fondoActualRes = await fetch('http://localhost:3000/api/fondos/actual');
+            const fondoActualRes = await fetch(`${API_URL}/api/fondos/actual`);
             const fondoActual = await fondoActualRes.json();
             const fondoNombre = fondoActual.nombre;
 
             // 2. Obtener participantes
-            const participantesRes = await fetch('http://localhost:3000/api/participantes');
+            const participantesRes = await fetch(`${API_URL}/api/participantes`);
             const participantes = await participantesRes.json();
 
-            // 3. Participantes activos (usuarios con fondo actual)
+            // 3. Participantes activos
             const participantesActivos = participantes.filter(p =>
                 p.rol === 'Usuario' && p.fondo === fondoNombre
             ).length;
@@ -41,42 +44,38 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('participantesActivos').textContent = participantesActivos;
 
             // 4. Obtener datos de ingresos y egresos
-const [
-    pagosAhorrosRes,
-    pagosPrestamosRes,
-    prestamosRes,
-    pagosMoraAhorrosRes,
-    pagosMoraPrestamosRes
-] = await Promise.all([
-    fetch('http://localhost:3000/api/pagos-ahorros'),
-    fetch('http://localhost:3000/api/pagos-prestamos'),
-    fetch('http://localhost:3000/api/prestamos'),
-    fetch('http://localhost:3000/api/pagos-mora-ahorros'),
-    fetch('http://localhost:3000/api/pagos-mora-prestamos')
-]);
+            const [
+                pagosAhorrosRes,
+                pagosPrestamosRes,
+                prestamosRes,
+                pagosMoraAhorrosRes,
+                pagosMoraPrestamosRes
+            ] = await Promise.all([
+                fetch(`${API_URL}/api/pagos-ahorros`),
+                fetch(`${API_URL}/api/pagos-prestamos`),
+                fetch(`${API_URL}/api/prestamos`),
+                fetch(`${API_URL}/api/pagos-mora-ahorros`),
+                fetch(`${API_URL}/api/pagos-mora-prestamos`)
+            ]);
 
-const pagosAhorros = await pagosAhorrosRes.json();
-const pagosPrestamos = await pagosPrestamosRes.json();
-const prestamos = await prestamosRes.json();
-const pagosMoraAhorros = await pagosMoraAhorrosRes.json();
-const pagosMoraPrestamos = await pagosMoraPrestamosRes.json();
+            const pagosAhorros = await pagosAhorrosRes.json();
+            const pagosPrestamos = await pagosPrestamosRes.json();
+            const prestamos = await prestamosRes.json();
+            const pagosMoraAhorros = await pagosMoraAhorrosRes.json();
+            const pagosMoraPrestamos = await pagosMoraPrestamosRes.json();
 
-// 5. Calcular totales
-const totalAhorros = pagosAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
-const totalPagosPrestamos = pagosPrestamos.reduce((sum, p) => sum + parseFloat(p.vpago || 0), 0);
-const totalPagosMoraAhorros = pagosMoraAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
-const totalPagosMoraPrestamos = pagosMoraPrestamos.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
-const totalPrestado = prestamos.reduce((sum, p) => sum + parseFloat(p.vprestamo || 0), 0);
+            // 5. Calcular totales
+            const totalAhorros = pagosAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+            const totalPagosPrestamos = pagosPrestamos.reduce((sum, p) => sum + parseFloat(p.vpago || 0), 0);
+            const totalPagosMoraAhorros = pagosMoraAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+            const totalPagosMoraPrestamos = pagosMoraPrestamos.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+            const totalPrestado = prestamos.reduce((sum, p) => sum + parseFloat(p.vprestamo || 0), 0);
 
-// 6. Fondos disponibles: todos los ingresos menos lo prestado
-const fondosDisponibles = totalAhorros + totalPagosPrestamos + totalPagosMoraAhorros + totalPagosMoraPrestamos - totalPrestado;
+            const fondosDisponibles = totalAhorros + totalPagosPrestamos + totalPagosMoraAhorros + totalPagosMoraPrestamos - totalPrestado;
+            document.getElementById('fondosDisponibles').textContent = `$ ${fondosDisponibles.toLocaleString('es-CO')}`;
 
-document.getElementById('fondosDisponibles').textContent = `$ ${fondosDisponibles.toLocaleString('es-CO')}`;
-
-
-            // 7. Calcular préstamos activos (saldo > 0)
+            // 6. Calcular préstamos activos
             let prestamosActivos = 0;
-
             for (let prestamo of prestamos) {
                 const valorPrestamo = parseFloat(prestamo.vprestamo || 0);
                 const tasa = parseFloat(prestamo.selecciontasa?.replace('%', '') || 0) / 100;

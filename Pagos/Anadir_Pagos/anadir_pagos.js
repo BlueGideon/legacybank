@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Función para cargar participantes y luego cargar datos del pago si estamos en edición
     async function cargarParticipantesYEditarSiAplica() {
         try {
-            const res = await fetch('http://localhost:3000/api/participantes/usuarios');
+            const res = await fetch(`${API_URL}/api/participantes/usuarios`);
             const participantes = await res.json();
 
             if (participantes.length === 0) {
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Si estamos editando un pago
             if (pagoId) {
-                const resPago = await fetch(`http://localhost:3000/api/pagos-ahorros/${pagoId}`);
+                const resPago = await fetch(`${API_URL}/api/pagos-ahorros/${pagoId}`);
                 const pago = await resPago.json();
 
                 document.getElementById('nombreParticipante').value = pago.nombre;
@@ -125,8 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const metodo = pagoId ? 'PUT' : 'POST';
             const url = pagoId
-                ? `http://localhost:3000/api/pagos-ahorros/${pagoId}`
-                : 'http://localhost:3000/api/pagos-ahorros';
+                ? `${API_URL}/api/pagos-ahorros/${pagoId}`
+                : `${API_URL}/api/pagos-ahorros`;
 
             try {
                 const res = await fetch(url, {

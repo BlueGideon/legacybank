@@ -2,6 +2,9 @@ body {
     margin: 0;
     font-family: sans-serif;
     background-color: #122A3B;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .container__principal {
@@ -155,4 +158,120 @@ body {
 
 .card__descripcion {
     margin: 0;
+    font-size: 1em;
+    font-style: italic;
+}
+
+.menu__inferior {
+  display: none;
+}
+
+/* ✅ Estilos para móviles */
+@media (max-width: 768px) {
+    .container__principal {
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        height: auto; /* ✅ Evita que el flex mantenga un alto forzado */
+        overflow-x: hidden;
+    }
+
+    .menu__lateral {
+        display: none; /* Ocultar menú lateral en móvil */
+    }
+
+    .main__panel {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bienvenida {
+    color: #fff;
+    font-size: 1em;
+}
+
+.cerrar__sesion {
+    background-color: #75965f;
+    border: 1px solid #75965f;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.dashboard__titulo {
+    font-size: 1.5em;
+    color: #fff;
+}
+
+    .container__cards {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* ✅ Reducimos para evitar que sume al ancho */
+        width: 100%;
+        max-width: 100%;
+        margin: 0; /* ✅ Quitamos margen lateral extra */
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 100%;
+        flex: none; /* ✅ Nada de flex-grow que estire */
+        box-sizing: border-box;
+        word-wrap: break-word;
+        border: 4px solid #75965f;
+    }
+
+.card__valor {
+    margin: 5px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.card__descripcion {
+    margin: 0;
+}
+
+    /* ✅ Menú inferior (nuevo) */
+    .menu__inferior {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #203250;
+    padding: 20px 0;
+    border-top: 2px solid #fff;
+    z-index: 100;
+}
+
+.menu__inferior a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu__inferior a.active {
+    color: #75965f;
+}
+
+.menu__inferior a i {
+    font-size: 24px;
+}
+
 }

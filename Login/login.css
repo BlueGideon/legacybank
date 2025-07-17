@@ -150,3 +150,15 @@ body {
     align-items: center;
     width: 100%;
 }
+
+/* Estilos para moviles */
+@media (max-width: 768px) {
+    .login__contenedor {
+        width: 300px;
+    }
+
+    .recuperar-contrasena {
+        width: 300px;
+    }
+    
+}

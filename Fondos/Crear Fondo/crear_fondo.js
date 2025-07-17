@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Si se está editando, traer datos del fondo desde el backend
     if (fondoEnEdicion) {
-        fetch('http://localhost:3000/api/fondos')
+        fetch(`${API_URL}/api/fondos`)
             .then(res => res.json())
             .then(fondos => {
                 const fondo = fondos.find(f => f.id == fondoEnEdicion);
@@ -66,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             if (fondoEnEdicion) {
                 // Actualizar fondo
-                await fetch(`http://localhost:3000/api/fondos/${fondoEnEdicion}`, {
+                await fetch(`${API_URL}/api/fondos/${fondoEnEdicion}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, tISocio, tIExterno, vPCompleto, esActual })
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.removeItem('fondoEnEdicion');
             } else {
                 // Crear nuevo fondo
-                await fetch('http://localhost:3000/api/fondos', {
+                await fetch(`${API_URL}/api/fondos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nombre, tISocio, tIExterno, vPCompleto, esActual })

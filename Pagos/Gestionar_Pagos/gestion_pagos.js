@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function() {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let total = 0;
 
     try {
-        const res = await fetch('http://localhost:3000/api/pagos-ahorros');
+        const res = await fetch(`${API_URL}/api/pagos-ahorros`);
         const pagos = await res.json();
 
         // Ordenar por fecha de pago descendente (más reciente primero)
@@ -131,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function eliminarPago(id) {
         if (confirm('¿Estás seguro de que quieres eliminar este pago?')) {
             try {
-                const res = await fetch(`http://localhost:3000/api/pagos-ahorros/${id}`, {
+                const res = await fetch(`${API_URL}/api/pagos-ahorros/${id}`, {
                     method: 'DELETE'
                 });
 

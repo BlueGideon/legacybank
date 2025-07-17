@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 🔄 Obtener fondo actual desde MySQL
     const fondoActualElemento = document.getElementById('fondoActualNombre');
 
-    fetch('http://localhost:3000/api/fondos/actual')
+    fetch(`${API_URL}/api/fondos/actual`)
         .then(response => {
             if (!response.ok) throw new Error('No se pudo obtener el fondo actual');
             return response.json();

@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return alert('Las contraseñas no coinciden.');
             }
 
-            fetch(`http://localhost:3000/api/participantes/cambiar-contrasena/${admin.id}`, {
+            fetch(`${API_URL}/api/participantes/cambiar-contrasena/${admin.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contrasena: nuevaContrasena })
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const datosActualizados = { nombre, correo, telefono };
 
-            fetch(`http://localhost:3000/api/participantes/perfil-admin/${admin.id}`, {
+            fetch(`${API_URL}/api/participantes/perfil-admin/${admin.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datosActualizados)
@@ -133,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ✅ --- MODO NORMAL (CREAR / EDITAR PARTICIPANTES) ---
     if (!idEdicion) {
-        fetch('http://localhost:3000/api/fondos/actual')
+        fetch(`${API_URL}/api/fondos/actual`)
             .then(res => res.json())
             .then(fondo => {
                 fondoInput.value = fondo.nombre || 'Ninguno';
@@ -161,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (idEdicion) {
-        fetch(`http://localhost:3000/api/participantes/${idEdicion}`)
+        fetch(`${API_URL}/api/participantes/${idEdicion}`)
             .then(res => res.json())
             .then(participante => {
                 nombreInput.value = participante.nombre;
@@ -211,8 +212,8 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         const url = idEdicion
-            ? `http://localhost:3000/api/participantes/${idEdicion}`
-            : `http://localhost:3000/api/participantes`;
+            ? `${API_URL}/api/participantes/${idEdicion}`
+            : `${API_URL}/api/participantes`;
 
         const method = idEdicion ? 'PUT' : 'POST';
 

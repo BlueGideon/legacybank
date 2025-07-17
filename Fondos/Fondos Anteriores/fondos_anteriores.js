@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function() {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function cargarFondos() {
         tablaFondosCuerpo.innerHTML = '';
 
-        fetch('http://localhost:3000/api/fondos')
+        fetch(`${API_URL}/api/fondos`)
             .then(response => response.json())
             .then(fondos => {
                 if (fondos.length === 0) {
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Funcion eliminar fondo
     function eliminarFondo(id) {
         if (confirm('¿Estás seguro de eliminar este fondo?')) {
-            fetch(`http://localhost:3000/api/fondos/${id}`, {
+            fetch(`${API_URL}/api/fondos/${id}`, {
                 method: 'DELETE'
             })
             .then(res => res.json())

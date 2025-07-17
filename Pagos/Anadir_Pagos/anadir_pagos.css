@@ -197,3 +197,69 @@ body {
     background-color: #456d71;
     border: 1px solid #456d71;
 }
+
+.menu__inferior {
+  display: none;
+}
+
+/* Estilos para moviles */
+@media (max-width: 768px) {
+    .menu__lateral {
+        display: none; /* Ocultar menú lateral en móvil */
+    }
+
+    .menu__inferior {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #203250;
+        padding: 20px 0;
+        border-top: 2px solid #fff;
+        z-index: 100;
+    }
+
+    .menu__inferior a {
+        color: white;
+        text-decoration: none;
+        font-size: 1.5em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .menu__inferior a.active {
+        color: #75965f;
+    }
+
+    .menu__inferior a i {
+        font-size: 24px;
+    }
+
+    .dashboard {
+        margin-top: 0;
+    }
+
+    .dashboard__titulo {
+        font-size: 1.5em;
+        color: #fff;
+    }
+
+    .container__form {
+        margin: 10px 0 80px 0;        
+        width: 100%;            
+        padding: 10px;
+}
+
+    .form__nuevo-pago {
+        width: 100%;
+        max-width: none;
+    }
+
+    .datos__nuevo-pago {
+        margin: 7px 0;
+    }
+}

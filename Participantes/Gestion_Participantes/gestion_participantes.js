@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function() {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function cargarParticipantes() {
         tablaParticipantesCuerpo.innerHTML = '';
 
-        fetch('http://localhost:3000/api/participantes')
+        fetch(`${API_URL}/api/participantes`)
             .then(res => res.json())
             .then(participantes => {
                 if (participantes.length === 0) {
@@ -82,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function eliminarParticipante(id) {
         if (confirm('¿Estás seguro de eliminar este participante?')) {
-            fetch(`http://localhost:3000/api/participantes/${id}`, {
+            fetch(`${API_URL}/api/participantes/${id}`, {
                 method: 'DELETE'
             })
             .then(res => res.json())

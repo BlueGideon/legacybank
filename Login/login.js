@@ -1,4 +1,6 @@
+import { API_URL } from "./config.js";
 document.addEventListener('DOMContentLoaded', function() {
+
     const btnIniciarSesion = document.getElementById('btnIniciarSesion');
 
     const linkOlvido = document.getElementById('olvideContrasena');
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     try {
-        const res = await fetch('http://localhost:3000/api/login', {
+        const res = await fetch(`${API_URL}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo, contrasena })
@@ -62,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     try {
-        const res = await fetch('http://localhost:3000/api/login/verificar-identidad', {
+        const res = await fetch(`${API_URL}/api/login/verificar-identidad`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo, fondo: fondoActual })
@@ -103,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     try {
-        const res = await fetch('http://localhost:3000/api/login/actualizar-contrasena', {
+        const res = await fetch(`${API_URL}/api/login/actualizar-contrasena`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ correo, fondo, nuevaContrasena: nueva })
@@ -132,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Cargar el fondo actual
-    fetch('http://localhost:3000/api/fondos/actual')
+    fetch(`${API_URL}/api/fondos/actual`)
         .then(res => res.json())
         .then(fondoActual => {
             const selectFondo = document.getElementById('fondoRecuperar');
