@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', () => {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function cargarFondos() {
         filtroFondo.innerHTML = '<option disabled selected>Selecciona fondo</option>';
         try {
-            const response = await fetch('http://localhost:3000/api/fondos');
+            const response = await fetch(`${API_URL}/api/fondos`);
             const fondos = await response.json();
 
             fondos.forEach(fondo => {
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ✅ 2. Cargar Participantes según Fondo
     async function cargarParticipantesPorFondo(nombreFondo) {
         try {
-            const response = await fetch('http://localhost:3000/api/participantes');
+            const response = await fetch(`${API_URL}/api/participantes`);
             const todos = await response.json();
 
             const participantesDelFondo = todos.filter(p => p.fondo === nombreFondo && p.rol === 'Usuario');
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch('http://localhost:3000/api/participantes');
+            const res = await fetch(`${API_URL}/api/participantes`);
             const participantes = await res.json();
 
             let filtrados = participantes.filter(p => p.fondo === fondo && p.rol === 'Usuario');

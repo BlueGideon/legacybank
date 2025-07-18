@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // PAGOS MORA DE AHORROS
     // =========================
     try {
-        const resAhorros = await fetch('http://localhost:3000/api/pagos-mora-ahorros');
+        const resAhorros = await fetch(`${API_URL}/api/pagos-mora-ahorros`);
         const pagosAhorros = await resAhorros.json();
 
         let totalAhorros = 0;
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const confirmacion = confirm('¿Estás seguro de eliminar este pago de mora?');
                 if (confirmacion) {
                     try {
-                        await fetch(`http://localhost:3000/api/pagos-mora-ahorros/${p.id}`, {
+                        await fetch(`${API_URL}/api/pagos-mora-ahorros/${p.id}`, {
                             method: 'DELETE'
                         });
                         alert('Pago eliminado.');
@@ -101,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // PAGOS MORA DE PRÉSTAMOS
     // =========================
     try {
-        const resPrestamos = await fetch('http://localhost:3000/api/pagos-mora-prestamos');
+        const resPrestamos = await fetch(`${API_URL}/api/pagos-mora-prestamos`);
         const pagosPrestamos = await resPrestamos.json();
 
         let totalPrestamos = 0;
@@ -137,7 +138,7 @@ pagosPrestamos.forEach(p => {
         const confirmacion = confirm('¿Estás seguro de eliminar este pago de mora de préstamo?');
         if (confirmacion) {
             try {
-                await fetch(`http://localhost:3000/api/pagos-mora-prestamos/${p.id}`, {
+                await fetch(`${API_URL}/api/pagos-mora-prestamos/${p.id}`, {
                     method: 'DELETE'
                 });
                 alert('Pago eliminado correctamente.');

@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async () => {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ✅ 1. Cargar fondos desde MySQL
     async function cargarFondos() {
         try {
-            const res = await fetch('http://localhost:3000/api/fondos');
+            const res = await fetch(`${API_URL}/api/fondos`);
             const fondos = await res.json();
 
             fondos.forEach(f => {
@@ -68,11 +69,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const [ahorrosRes, pagosPrestamosRes, prestamosRes, moraAhorrosRes, moraPrestamosRes] =
                 await Promise.all([
-                    fetch('http://localhost:3000/api/pagos-ahorros'),
-                    fetch('http://localhost:3000/api/pagos-prestamos'),
-                    fetch('http://localhost:3000/api/prestamos'),
-                    fetch('http://localhost:3000/api/pagos-mora-ahorros'),
-                    fetch('http://localhost:3000/api/pagos-mora-prestamos')
+                    fetch(`${API_URL}/api/pagos-ahorros`),
+                    fetch(`${API_URL}/api/pagos-prestamos`),
+                    fetch(`${API_URL}/api/prestamos`),
+                    fetch(`${API_URL}/api/pagos-mora-ahorros`),
+                    fetch(`${API_URL}/api/pagos-mora-prestamos`)
                 ]);
 
             const ahorros = await ahorrosRes.json();

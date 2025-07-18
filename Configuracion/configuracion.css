@@ -176,3 +176,63 @@ body {
     margin: 0;
     font-style: italic;
 }
+
+.menu__inferior {
+    display: none;
+}
+
+/* ======= ESTILOS PARA MÓVILES ======= */
+@media (max-width: 768px) {
+    .container__principal {
+        flex-direction: column; 
+        min-height: auto; 
+    }
+
+    .menu__lateral {
+        display: none;
+    }
+
+    .menu__inferior {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #203250;
+        padding: 20px 0;
+        border-top: 2px solid #fff;
+        z-index: 100;
+    }
+
+    .menu__inferior a {
+        color: white;
+        text-decoration: none;
+        font-size: 1.5em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .menu__inferior a.active {
+        color: #75965f;
+    }
+
+    .menu__inferior a i {
+        font-size: 24px;
+    }
+
+    .main__panel {
+        padding: 20px 10px 90px; /* ✅ espacio solo para el menú inferior */
+    }
+
+    .dashboard {
+        margin-top: 0;
+    }
+
+    .dashboard__titulo {
+        font-size: 1.4em;
+        color: #fff;
+    }
+}

@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        const res = await fetch('http://localhost:3000/api/pagos-prestamos');
+        const res = await fetch(`${API_URL}/api/pagos-prestamos`);
         const pagos = await res.json();
 
         const nombresSet = new Set();
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (diasMora > 0) {
                 const moraTotal = diasMora * 1000;
 
-                const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/abonados/${pago.id}`);
+                const abonoRes = await fetch(`${API_URL}/api/pagos-mora-prestamos/abonados/${pago.id}`);
                 const { total_abonado } = await abonoRes.json();
                 const abonado = total_abonado ?? 0;
                 const restante = moraTotal - abonado;

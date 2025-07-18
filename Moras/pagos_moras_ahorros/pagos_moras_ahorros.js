@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -51,7 +52,7 @@ const modoEdicion = !!idEditar;
     // ==================================
     if (modoEdicion) {
         try {
-            const res = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/${idEditar}`);
+            const res = await fetch(`${API_URL}/api/pagos-mora-ahorros/${idEditar}`);
             const pago = await res.json();
             const valorAnterior = parseFloat(pago.valor);
 
@@ -79,7 +80,7 @@ const modoEdicion = !!idEditar;
                 }
 
                 try {
-                    const resUpdate = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/${idEditar}`, {
+                    const resUpdate = await fetch(`${API_URL}/api/pagos-mora-ahorros/${idEditar}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
@@ -121,7 +122,7 @@ const modoEdicion = !!idEditar;
         const moraTotal = diasMora * 1000;
 
         try {
-            const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${pago.id}`);
+            const abonoRes = await fetch(`${API_URL}/api/pagos-mora-ahorros/abonados/${pago.id}`);
             const { total_abonado } = await abonoRes.json();
             const abonado = total_abonado ?? 0;
             const restante = moraTotal - abonado;
@@ -178,7 +179,7 @@ const modoEdicion = !!idEditar;
                 }
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/pagos-mora-ahorros', {
+                    const res = await fetch(`${API_URL}/api/pagos-mora-ahorros`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)

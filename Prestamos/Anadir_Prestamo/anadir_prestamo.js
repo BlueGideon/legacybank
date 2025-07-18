@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btnAgregarPrestamo.textContent = 'Actualizar Préstamo';
 
         // Primero traemos el préstamo, pero NO llenamos aún el select
-        fetch(`http://localhost:3000/api/prestamos/${idEdicion}`)
+        fetch(`${API_URL}/api/prestamos/${idEdicion}`)
             .then(res => res.json())
             .then(prestamo => {
                 prestamoEnEdicion = prestamo;
@@ -43,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 🧑‍🤝‍🧑 Cargar participantes con rol 'Usuario' desde MySQL
-    fetch('http://localhost:3000/api/participantes/usuarios')
+    fetch(`${API_URL}/api/participantes/usuarios`)
         .then(res => res.json())
         .then(participantes => {
             nombreSelect.innerHTML = ''; // Limpiar opciones previas
@@ -115,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (idEdicion) {
                 // Actualizar préstamo existente
-                res = await fetch(`http://localhost:3000/api/prestamos/${idEdicion}`, {
+                res = await fetch(`${API_URL}/api/prestamos/${idEdicion}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(prestamoData)
@@ -131,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Préstamo actualizado con éxito');
             } else {
                 // Crear nuevo préstamo
-                res = await fetch('http://localhost:3000/api/prestamos', {
+                res = await fetch(`${API_URL}/api/prestamos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(prestamoData)

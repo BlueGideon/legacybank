@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -38,12 +39,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     try {
         console.log('Cargando fondo actual...');
-        const fondoRes = await fetch('http://localhost:3000/api/fondos/actual');
+        const fondoRes = await fetch(`${API_URL}/api/fondos/actual`);
         if (!fondoRes.ok) throw new Error('Error al obtener fondo actual');
         const fondoActual = await fondoRes.json();
 
         console.log('Cargando participantes...');
-        const participantesRes = await fetch('http://localhost:3000/api/participantes');
+        const participantesRes = await fetch(`${API_URL}/api/participantes`);
         if (!participantesRes.ok) throw new Error('Error al obtener participantes');
         const participantes = await participantesRes.json();
 
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         for (const usuario of usuarios) {
             console.log(`Cargando pagos de: ${usuario.nombre}`);
-            const pagosRes = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
+            const pagosRes = await fetch(`${API_URL}/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
             if (!pagosRes.ok) throw new Error(`Error al obtener pagos de ${usuario.nombre}`);
             const pagos = await pagosRes.json();
 
@@ -65,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const moraTotal = diasMora * 1000;
 
                     console.log(`Consultando abonos de pago ID ${pago.id}`);
-                    const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-ahorros/abonados/${pago.id}`);
+                    const abonoRes = await fetch(`${API_URL}/api/pagos-mora-ahorros/abonados/${pago.id}`);
                     if (!abonoRes.ok) throw new Error(`Error al obtener abonos de ${pago.id}`);
                     const { total_abonado } = await abonoRes.json();
                     const abonado = total_abonado ?? 0;

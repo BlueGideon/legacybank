@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -41,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
     tablaPagosPrestamosCuerpo.innerHTML = '';
 
     try {
-        const pagosprestamos = await fetch('http://localhost:3000/api/pagos-prestamos').then(res => res.json());
-        const prestamos = await fetch('http://localhost:3000/api/prestamos').then(res => res.json());
+        const pagosprestamos = await fetch(`${API_URL}/api/pagos-prestamos`).then(res => res.json());
+        const prestamos = await fetch(`${API_URL}/api/prestamos`).then(res => res.json());
 
         if (!pagosprestamos.length) {
             const row = tablaPagosPrestamosCuerpo.insertRow();
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEliminar.classList.add('eliminar-btn');
             btnEliminar.addEventListener('click', async () => {
                 if (confirm('¿Estás seguro de que quieres eliminar este pago de préstamo?')) {
-                    await fetch(`http://localhost:3000/api/pagos-prestamos/${pago.id}`, {
+                    await fetch(`${API_URL}/api/pagos-prestamos/${pago.id}`, {
                         method: 'DELETE'
                     });
                     cargarPagosPrestamos();

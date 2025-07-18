@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
   const admin = JSON.parse(localStorage.getItem('adminActivo'));
   if (!admin) {
@@ -45,8 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
   (async function cargarFiltros() {
-    const prestamos = await fetch('http://localhost:3000/api/prestamos').then(r => r.json());
-    const pagos = await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
+    const prestamos = await fetch(`${API_URL}/api/prestamos`).then(r => r.json());
+    const pagos = await fetch(`${API_URL}/api/pagos-prestamos`).then(r => r.json());
 
     filtroParticipante.innerHTML = '<option disabled selected>Selecciona participante/solicitante</option>';
     filtroAno.innerHTML = '<option disabled selected>Selecciona el año</option>';
@@ -75,8 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const tipo = filtroTipo.value;
     const part = filtroParticipante.value;
     let datos = tipo === 'Préstamos'
-      ? await fetch('http://localhost:3000/api/prestamos').then(r => r.json())
-      : await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
+      ? await fetch(`${API_URL}/api/prestamos`).then(r => r.json())
+      : await fetch(`${API_URL}/api/pagos-prestamos`).then(r => r.json());
 
     datos = datos.filter(d => (tipo === 'Préstamos' ? d.nombre : d.solicitante) === part);
     const anos = new Set(), meses = new Set();
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ano) qs.set('ano', ano);
     if (mes) qs.set('mes', mes);
     const endpoint = tipo === 'Préstamos' ? 'prestamos' : 'pagos';
-    const datos = await fetch(`http://localhost:3000/api/informes-prestamos/${endpoint}?${qs}`).then(r => r.json());
+    const datos = await fetch(`${API_URL}/api/informes-prestamos/${endpoint}?${qs}`).then(r => r.json());
 
     tablaEncabezado.innerHTML = '';
     tablaCuerpo.innerHTML = '';
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <th>F. Préstamo</th><th>Asociado</th><th>V. Préstamo</th>
         <th>Tasa</th><th>N° Cuotas</th><th>V. Interés</th>
         <th>V. Cuotas</th><th>Ganancia</th><th>V. Pagar</th><th>Estado</th>`;
-      const pagosTodos = await fetch('http://localhost:3000/api/pagos-prestamos').then(r => r.json());
+      const pagosTodos = await fetch(`${API_URL}/api/pagos-prestamos`).then(r => r.json());
       let total = 0;
 
       datos.sort((a, b) => new Date(b.fprestamo) - new Date(a.fprestamo));
@@ -158,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <th>Solicitante</th><th>F. Pago</th><th>F. Límite</th>
     <th>V. Pago</th><th>N° Cuota</th><th>Días Mora</th><th>Restante</th>`;
 
-  const prestamos = await fetch('http://localhost:3000/api/prestamos').then(r => r.json());
+  const prestamos = await fetch(`${API_URL}/api/prestamos`).then(r => r.json());
 
   // ✅ Agrupar pagos por idPrestamo
   const pagosAgrupados = {};

@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -48,10 +49,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Cargar participantes (solo usuarios con fondo actual)
     try {
-        const fondoRes = await fetch('http://localhost:3000/api/fondos/actual');
+        const fondoRes = await fetch(`${API_URL}/api/fondos/actual`);
         const fondoActual = await fondoRes.json();
 
-        const participantesRes = await fetch('http://localhost:3000/api/participantes');
+        const participantesRes = await fetch(`${API_URL}/api/participantes`);
         const participantes = await participantesRes.json();
 
         const usuarios = participantes.filter(p =>
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             filtroMes.innerHTML = `<option disabled selected>Selecciona el mes</option>`;
 
             const nombre = filtroParticipante.value;
-            const pagosRes = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(nombre)}`);
+            const pagosRes = await fetch(`${API_URL}/api/pagos-ahorros/por-nombre/${encodeURIComponent(nombre)}`);
             const pagos = await pagosRes.json();
 
             const anos = new Set();
@@ -128,7 +129,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         let pagos = [];
         try {
-            const res = await fetch(`http://localhost:3000/api/pagos-ahorros/por-nombre/${encodeURIComponent(nombre)}`);
+            const res = await fetch(`${API_URL}/api/pagos-ahorros/por-nombre/${encodeURIComponent(nombre)}`);
             pagos = await res.json();
         } catch (error) {
             console.error('Error al cargar pagos de ahorros:', error);

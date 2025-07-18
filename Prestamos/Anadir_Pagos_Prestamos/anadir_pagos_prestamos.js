@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Cargar solicitantes con préstamos
-    fetch('http://localhost:3000/api/prestamos')
+    fetch(`${API_URL}/api/prestamos`)
         .then(res => res.json())
         .then(prestamos => {
             const nombresUnicos = [...new Set(prestamos.map(p => p.solicitante))];
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const indiceEdicion = localStorage.getItem('pagoPrestamoEnEdicion');
             if (indiceEdicion !== null) {
-                fetch('http://localhost:3000/api/pagos-prestamos')
+                fetch(`${API_URL}/api/pagos-prestamos`)
                     .then(res => res.json())
                     .then(pagos => {
                         const pago = pagos.find(p => p.id == indiceEdicion);
@@ -77,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
     prestamoSelect.innerHTML = '<option value="" disabled selected>Selecciona un préstamo</option>';
 
     try {
-        const res = await fetch(`http://localhost:3000/api/prestamos/por-solicitante/${encodeURIComponent(solicitante)}`);
+        const res = await fetch(`${API_URL}/api/prestamos/por-solicitante/${encodeURIComponent(solicitante)}`);
         const prestamos = await res.json();
         console.log('Préstamos recibidos para', solicitante, prestamos); // ✅ DEPURACIÓN
 
@@ -108,11 +109,11 @@ document.addEventListener('DOMContentLoaded', function () {
         cuotaSelect.innerHTML = '<option value="" disabled selected>Selecciona la cuota</option>';
 
         try {
-            const prestamoRes = await fetch(`http://localhost:3000/api/prestamos/${idPrestamo}`);
+            const prestamoRes = await fetch(`${API_URL}/api/prestamos/${idPrestamo}`);
             const prestamo = await prestamoRes.json();
             const totalCuotas = parseInt(prestamo.ncuotas);
 
-            const pagosRes = await fetch(`http://localhost:3000/api/pagos-prestamos/por-prestamo/${idPrestamo}`);
+            const pagosRes = await fetch(`${API_URL}/api/pagos-prestamos/por-prestamo/${idPrestamo}`);
             const pagos = await pagosRes.json();
 
             const idEdicion = localStorage.getItem('pagoPrestamoEnEdicion');
@@ -165,14 +166,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             if (idEdicion) {
-                await fetch(`http://localhost:3000/api/pagos-prestamos/${idEdicion}`, {
+                await fetch(`${API_URL}/api/pagos-prestamos/${idEdicion}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(nuevoPago)
                 });
                 localStorage.removeItem('pagoPrestamoEnEdicion');
             } else {
-                await fetch('http://localhost:3000/api/pagos-prestamos', {
+                await fetch(`${API_URL}/api/pagos-prestamos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(nuevoPago)

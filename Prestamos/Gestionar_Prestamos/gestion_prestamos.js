@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -43,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function cargarPrestamos() {
         tablaPrestamosCuerpo.innerHTML = '';
 
-        fetch('http://localhost:3000/api/prestamos')
+        fetch(`${API_URL}/api/prestamos`)
             .then(res => res.json())
             .then(prestamos => {
                 let total = 0;
@@ -117,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Eliminar préstamo
     function eliminarPrestamo(id) {
         if (confirm('¿Estás seguro de que quieres eliminar este préstamo?')) {
-            fetch(`http://localhost:3000/api/prestamos/${id}`, {
+            fetch(`${API_URL}/api/prestamos/${id}`, {
                 method: 'DELETE'
             })
                 .then(res => res.json())

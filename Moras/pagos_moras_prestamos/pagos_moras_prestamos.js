@@ -1,3 +1,4 @@
+import { API_URL } from "/Login/config.js";
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // ==================================
     if (idEditar) {
         try {
-            const res = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/${idEditar}`);
+            const res = await fetch(`${API_URL}/api/pagos-mora-prestamos/${idEditar}`);
             const pago = await res.json();
 
             solicitante.innerHTML = `<option value="${pago.solicitante}" selected>${pago.solicitante}</option>`;
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
 
                 try {
-                    const resUpdate = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/${idEditar}`, {
+                    const resUpdate = await fetch(`${API_URL}/api/pagos-mora-prestamos/${idEditar}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const moraTotal = diasMora * 1000;
 
         try {
-            const abonoRes = await fetch(`http://localhost:3000/api/pagos-mora-prestamos/abonados/${pago.id}`);
+            const abonoRes = await fetch(`${API_URL}/api/pagos-mora-prestamos/abonados/${pago.id}`);
             const { total_abonado } = await abonoRes.json();
             const abonado = total_abonado ?? 0;
             const restante = moraTotal - abonado;
@@ -165,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
 
                 try {
-                    const res = await fetch('http://localhost:3000/api/pagos-mora-prestamos', {
+                    const res = await fetch(`${API_URL}/api/pagos-mora-prestamos`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
