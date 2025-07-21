@@ -1,4 +1,5 @@
 import { API_URL } from "/Login/config.js";
+
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -38,55 +39,37 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        console.log('Cargando fondo actual...');
-        const fondoRes = await fetch(`${API_URL}/api/fondos/actual`);
-        if (!fondoRes.ok) throw new Error('Error al obtener fondo actual');
-        const fondoActual = await fondoRes.json();
+        const pagosRes = await fetch(`${API_URL}/api/pagos-ahorros/moras`);
+        if (!pagosRes.ok) throw new Error('Error al obtener pagos con mora');
+        const pagos = await pagosRes.json();
 
-        console.log('Cargando participantes...');
-        const participantesRes = await fetch(`${API_URL}/api/participantes`);
-        if (!participantesRes.ok) throw new Error('Error al obtener participantes');
-        const participantes = await participantesRes.json();
-
-        const usuarios = participantes.filter(p => p.rol === 'Usuario' && p.fondo === fondoActual.nombre);
         const nombresSet = new Set();
 
-        for (const usuario of usuarios) {
-            console.log(`Cargando pagos de: ${usuario.nombre}`);
-            const pagosRes = await fetch(`${API_URL}/api/pagos-ahorros/por-nombre/${encodeURIComponent(usuario.nombre)}`);
-            if (!pagosRes.ok) throw new Error(`Error al obtener pagos de ${usuario.nombre}`);
-            const pagos = await pagosRes.json();
+        // Procesar pagos (ya vienen solo con mora > 0 del backend)
+        for (const pago of pagos) {
+            const diasMora = pago.dias_mora;
+            const moraTotal = diasMora * 1000;
 
-            for (const pago of pagos) {
-                const fPago = new Date(pago.fecha_pago);
-                const fLimite = new Date(pago.fecha_limite_pago);
-                const diasMora = Math.max(0, Math.ceil((fPago - fLimite) / (1000 * 60 * 60 * 24)));
+            const abonoRes = await fetch(`${API_URL}/api/pagos-mora-ahorros/abonados/${pago.id}`);
+            if (!abonoRes.ok) throw new Error(`Error al obtener abonos de ${pago.id}`);
+            const { total_abonado } = await abonoRes.json();
+            const abonado = total_abonado ?? 0;
+            const restante = moraTotal - abonado;
 
-                if (diasMora > 0) {
-                    const moraTotal = diasMora * 1000;
-
-                    console.log(`Consultando abonos de pago ID ${pago.id}`);
-                    const abonoRes = await fetch(`${API_URL}/api/pagos-mora-ahorros/abonados/${pago.id}`);
-                    if (!abonoRes.ok) throw new Error(`Error al obtener abonos de ${pago.id}`);
-                    const { total_abonado } = await abonoRes.json();
-                    const abonado = total_abonado ?? 0;
-                    const restante = moraTotal - abonado;
-
-                    if (restante > 0) {
-                        pagosConMora.push({
-                            ...pago,
-                            diasMora,
-                            abonado,
-                            restante,
-                            moraTotal,
-                            id_fondo: pago.id_fondo
-                        });
-                        nombresSet.add(pago.nombre);
-                    }
-                }
+            if (restante > 0) {
+                pagosConMora.push({
+                    ...pago,
+                    diasMora,
+                    abonado,
+                    restante,
+                    moraTotal,
+                    id_fondo: pago.fondo_id
+                });
+                nombresSet.add(pago.nombre);
             }
         }
 
+        // Llenar select de participantes
         [...nombresSet].sort().forEach(nombre => {
             const option = document.createElement('option');
             option.value = nombre;
@@ -133,20 +116,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             btn.classList.add('btn-pagar');
             btn.textContent = 'Pagar';
             btn.addEventListener('click', () => {
-    const pagoSeleccionado = {
-        id: pago.id,
-        nombre: pago.nombre,
-        fecha_pago: pago.fecha_pago,
-        fecha_limite_pago: pago.fecha_limite_pago,
-        id_fondo: pago.id_fondo   // ✅ Aseguramos el fondo
-    };
+                const pagoSeleccionado = {
+                    id: pago.id,
+                    nombre: pago.nombre,
+                    fecha_pago: pago.fecha_pago,
+                    fecha_limite_pago: pago.fecha_limite_pago,
+                    id_fondo: pago.id_fondo
+                };
 
-    localStorage.setItem('tipoMora', tipoMora);
-    localStorage.setItem('pagoAhorroMora', JSON.stringify(pagoSeleccionado));
-    localStorage.removeItem('idPagoMoraAhorroEditar');
-    window.location.href = '/Moras/pagos_moras_ahorros/pagos_moras_ahorros.html';
-});
-
+                localStorage.setItem('tipoMora', tipoMora);
+                localStorage.setItem('pagoAhorroMora', JSON.stringify(pagoSeleccionado));
+                localStorage.removeItem('idPagoMoraAhorroEditar');
+                window.location.href = '/Moras/pagos_moras_ahorros/pagos_moras_ahorros.html';
+            });
 
             const cell = row.insertCell();
             cell.appendChild(btn);
@@ -163,4 +145,3 @@ document.addEventListener('DOMContentLoaded', async function () {
         mostrarTabla(filtro);
     });
 });
-

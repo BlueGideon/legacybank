@@ -150,6 +150,18 @@ body {
     text-align: center;
 }
 
+.card__liquidaciones {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    background-color: #659ea4;
+    border: 4px solid #fff;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
 .card__valor {
     margin: 5px;
     font-size: 2em;
@@ -160,6 +172,17 @@ body {
     margin: 0;
     font-size: 1em;
     font-style: italic;
+}
+
+.card__titulo {
+    margin: 5px;
+    font-size: 2em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.d-liquidaciones {
+    color: #fff;
 }
 
 .menu__inferior {
@@ -230,9 +253,15 @@ body {
         box-sizing: border-box;
         word-wrap: break-word;
         border: 4px solid #75965f;
+        padding: 5px;
     }
 
-.card__valor {
+    .card__liquidaciones {
+        margin-top: 10px;
+        padding: 5px;
+    }
+
+.card__valor, .card__titulo {
     margin: 5px;
     font-size: 1.5em;
     font-weight: bold;

@@ -1,4 +1,5 @@
 import { API_URL } from "/Login/config.js";
+
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -8,8 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Si el admin está logueado, continúa con el resto de tu lógica...
-
     const btnCerrarSesion = document.getElementById('btnCerrarSesion');
     const tituloSeccion = document.getElementById('tituloSeccion');
     const btnAgregarPago = document.getElementById('btnAgregarPago');
@@ -17,47 +16,55 @@ document.addEventListener('DOMContentLoaded', function () {
     const pagoId = localStorage.getItem('pagoIdEdicion');
 
     // Cerrar sesión
-    btnCerrarSesion.addEventListener('click', function(event) {
-    event.preventDefault();
-
-    // Elimina la sesión activa (ajusta el nombre si usas otro)
-    localStorage.removeItem('adminActivo');
-
-    // Redirige al login
-    window.location.href = '/Login/login.html';
-});
-
+    btnCerrarSesion.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('adminActivo');
+        window.location.href = '/Login/login.html';
+    });
 
     // Mostrar automáticamente el puesto y la cantidad al seleccionar participante
     nombreSelect.addEventListener('change', function () {
-    const selectedOption = nombreSelect.options[nombreSelect.selectedIndex];
-    const puesto = selectedOption.getAttribute('data-puesto');
-    const cantPuestos = parseFloat(selectedOption.getAttribute('data-cantpuestos')) || 0;
+        const selectedOption = nombreSelect.options[nombreSelect.selectedIndex];
+        const puesto = selectedOption.getAttribute('data-puesto');
+        const cantPuestos = parseFloat(selectedOption.getAttribute('data-cantpuestos')) || 0;
 
-    document.getElementById('puestoParticipante').value = puesto || '';
-    document.getElementById('numPuestos').value = cantPuestos || '';
+        document.getElementById('puestoParticipante').value = puesto || '';
+        document.getElementById('numPuestos').value = cantPuestos || '';
 
-    // Valor de un puesto completo (puedes traerlo dinámico si quieres)
-    const valorPuestoCompleto = 130000;
-    const valorCalculado = valorPuestoCompleto * cantPuestos;
+        // Valor de un puesto completo (puedes traerlo dinámico si lo deseas)
+        const valorPuestoCompleto = 130000;
+        const valorCalculado = valorPuestoCompleto * cantPuestos;
+        document.getElementById('valorPago').placeholder =
+            `Sugerido: ${valorCalculado.toLocaleString('es-CO')}`;
+    });
 
-    // Mostrar en placeholder
-    const inputValorPago = document.getElementById('valorPago');
-    inputValorPago.placeholder = `Sugerido: ${valorCalculado.toLocaleString('es-CO')}`;
-});
-
-
-
-
-    // Función para cargar participantes y luego cargar datos del pago si estamos en edición
+    // ✅ Función para cargar participantes del fondo actual
     async function cargarParticipantesYEditarSiAplica() {
         try {
-            const res = await fetch(`${API_URL}/api/participantes/usuarios`);
+            // 1. Obtener fondo actual
+            const fondoActualRes = await fetch(`${API_URL}/api/fondos/actual`);
+            const fondoActual = await fondoActualRes.json();
+            const fondoId = fondoActual.id; // 👈 Usamos el ID del fondo
+
+            // 2. Obtener participantes SOLO del fondo actual desde el backend
+            const res = await fetch(`${API_URL}/api/participantes/usuarios?fondo_id=${fondoId}`);
             const participantes = await res.json();
+
+
+            // 3. Rellenar select
+            nombreSelect.innerHTML = '';
+
+            // 👉 Opción por defecto
+const opcionDefault = document.createElement('option');
+opcionDefault.value = '';
+opcionDefault.textContent = 'Seleccionar participante';
+opcionDefault.disabled = true;
+opcionDefault.selected = true;
+nombreSelect.appendChild(opcionDefault);
 
             if (participantes.length === 0) {
                 const opcion = document.createElement('option');
-                opcion.textContent = 'No hay usuarios registrados';
+                opcion.textContent = 'No hay usuarios registrados en este fondo';
                 opcion.disabled = true;
                 nombreSelect.appendChild(opcion);
                 return;
@@ -71,11 +78,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 opcion.setAttribute('data-cantpuestos', part.cantPuestos);
                 nombreSelect.appendChild(opcion);
 
-                console.log('>> Participante:', part.nombre, '| Puesto:', part.puesto, '| CantPuestos:', part.cantPuestos);
-
+                console.log(`>> Participante: ${part.nombre} | Fondo: ${part.fondo}`);
             });
 
-            // Si estamos editando un pago
+            // 4. Si estamos editando un pago, cargarlo
             if (pagoId) {
                 const resPago = await fetch(`${API_URL}/api/pagos-ahorros/${pagoId}`);
                 const pago = await resPago.json();
@@ -88,15 +94,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('fechaLimitePago').value = pago.fecha_limite_pago.split('T')[0];
                 document.getElementById('seleccionMes').value = pago.mes;
 
-                // Cambiar texto del botón
-                if (btnAgregarPago) {
-                    btnAgregarPago.textContent = 'Actualizar Pago';
-                }
-
-                // Cambiat titulo
-                if (tituloSeccion) {
-                    tituloSeccion.textContent = 'Actualizar Pago'
-                }
+                if (btnAgregarPago) btnAgregarPago.textContent = 'Actualizar Pago';
+                if (tituloSeccion) tituloSeccion.textContent = 'Actualizar Pago';
             }
 
         } catch (error) {
@@ -115,14 +114,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const fechaLimitePago = document.getElementById('fechaLimitePago').value;
             const seleccionMes = document.getElementById('seleccionMes').value;
 
-            if (!nombreParticipante || !puesto ||  !cantPuestos ||!valorPago || !fechaPago || !fechaLimitePago || !seleccionMes) {
+            if (!nombreParticipante || !puesto || !cantPuestos || !valorPago || !fechaPago || !fechaLimitePago || !seleccionMes) {
                 alert('Por favor, completa todos los campos.');
                 return;
             }
 
-            const fechaPagoDate = new Date(fechaPago);
-            const fechaLimiteDate = new Date(fechaLimitePago);
-            const diasMora = Math.ceil((fechaPagoDate - fechaLimiteDate) / (1000 * 60 * 60 * 24));
+            const diasMora = Math.ceil(
+                (new Date(fechaPago) - new Date(fechaLimitePago)) / (1000 * 60 * 60 * 24)
+            );
 
             const metodo = pagoId ? 'PUT' : 'POST';
             const url = pagoId
@@ -146,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 const data = await res.json();
-
                 if (!res.ok) {
                     alert('Error al guardar el pago.');
                     return;

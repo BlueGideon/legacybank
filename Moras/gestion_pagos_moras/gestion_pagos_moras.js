@@ -1,7 +1,7 @@
 import { API_URL } from "/Login/config.js";
+
 document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
-
     if (!admin) {
         alert('Debes iniciar sesión para acceder a esta página.');
         window.location.href = '/Login/login.html';
@@ -21,32 +21,27 @@ document.addEventListener('DOMContentLoaded', async function () {
         window.location.href = '/Moras/gestion_pagos_moras/gestion_pagos_moras.html';
     });
 
-    // Elementos HTML
     const btnCerrarSesion = document.getElementById('btnCerrarSesion');
     const tablaPagosAhorros = document.getElementById('tablaPagosAhorros');
     const totalMoraAhorros = document.getElementById('totalMoraAhorros');
     const tablaPagosPrestamos = document.getElementById('tablaPagosPrestamos');
     const totalMoraPrestamos = document.getElementById('totalMoraPrestamos');
 
-    // Cerrar sesión
     btnCerrarSesion.addEventListener('click', function () {
         localStorage.removeItem('adminActivo');
         window.location.href = '/Login/login.html';
     });
 
-
-
     // =========================
     // PAGOS MORA DE AHORROS
     // =========================
     try {
-        const resAhorros = await fetch(`${API_URL}/api/pagos-mora-ahorros`);
+        const resAhorros = await fetch(`${API_URL}/api/pagos-mora-ahorros/fondo-actual`);
         const pagosAhorros = await resAhorros.json();
 
         let totalAhorros = 0;
         tablaPagosAhorros.innerHTML = '';
 
-        // 🔽 Ordenar pagos por fecha: más recientes primero
         pagosAhorros.sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago));
 
         pagosAhorros.forEach(p => {
@@ -58,7 +53,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             fila.insertCell().textContent = `$ ${parseFloat(p.valor).toLocaleString('es-CO')}`;
             totalAhorros += parseFloat(p.valor);
 
-            // Acciones: Editar y Eliminar
             const accionesCell = fila.insertCell();
 
             const btnEditar = document.createElement('button');
@@ -74,12 +68,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             btnEliminar.textContent = 'Eliminar';
             btnEliminar.className = 'btn btn-eliminar';
             btnEliminar.addEventListener('click', async () => {
-                const confirmacion = confirm('¿Estás seguro de eliminar este pago de mora?');
-                if (confirmacion) {
+                if (confirm('¿Estás seguro de eliminar este pago de mora?')) {
                     try {
-                        await fetch(`${API_URL}/api/pagos-mora-ahorros/${p.id}`, {
-                            method: 'DELETE'
-                        });
+                        await fetch(`${API_URL}/api/pagos-mora-ahorros/${p.id}`, { method: 'DELETE' });
                         alert('Pago eliminado.');
                         location.reload();
                     } catch (err) {
@@ -102,62 +93,57 @@ document.addEventListener('DOMContentLoaded', async function () {
     // PAGOS MORA DE PRÉSTAMOS
     // =========================
     try {
-        const resPrestamos = await fetch(`${API_URL}/api/pagos-mora-prestamos`);
+        const resPrestamos = await fetch(`${API_URL}/api/pagos-mora-prestamos/fondo-actual`);
         const pagosPrestamos = await resPrestamos.json();
 
         let totalPrestamos = 0;
         tablaPagosPrestamos.innerHTML = '';
 
-        pagosPrestamos.sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago)); // orden descendente
+        pagosPrestamos.sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago));
 
-pagosPrestamos.forEach(p => {
-    const fila = tablaPagosPrestamos.insertRow();
-    fila.insertCell().textContent = p.solicitante;
-    fila.insertCell().textContent = formatearFecha(p.fecha_pago);
-    fila.insertCell().textContent = p.concepto;
-    fila.insertCell().textContent = p.detalle;
-    fila.insertCell().textContent = `$ ${parseFloat(p.valor).toLocaleString('es-CO')}`;
-    totalPrestamos += parseFloat(p.valor);
+        pagosPrestamos.forEach(p => {
+            const fila = tablaPagosPrestamos.insertRow();
+            fila.insertCell().textContent = p.solicitante;
+            fila.insertCell().textContent = formatearFecha(p.fecha_pago);
+            fila.insertCell().textContent = p.concepto;
+            fila.insertCell().textContent = p.detalle;
+            fila.insertCell().textContent = `$ ${parseFloat(p.valor).toLocaleString('es-CO')}`;
+            totalPrestamos += parseFloat(p.valor);
 
-    // Acciones: Editar y Eliminar
-    const accionesCell = fila.insertCell();
+            const accionesCell = fila.insertCell();
 
-    const btnEditar = document.createElement('button');
-    btnEditar.textContent = 'Editar';
-    btnEditar.className = 'btn btn-editar';
-    btnEditar.addEventListener('click', () => {
-        localStorage.setItem('idPagoMoraPrestamoEditar', p.id);
-        localStorage.setItem('tipoMora', 'prestamos');
-        window.location.href = '/Moras/pagos_moras_prestamos/pagos_moras_prestamos.html';
-    });
+            const btnEditar = document.createElement('button');
+            btnEditar.textContent = 'Editar';
+            btnEditar.className = 'btn btn-editar';
+            btnEditar.addEventListener('click', () => {
+                localStorage.setItem('idPagoMoraPrestamoEditar', p.id);
+                localStorage.setItem('tipoMora', 'prestamos');
+                window.location.href = '/Moras/pagos_moras_prestamos/pagos_moras_prestamos.html';
+            });
 
-    const btnEliminar = document.createElement('button');
-    btnEliminar.textContent = 'Eliminar';
-    btnEliminar.className = 'btn btn-eliminar';
-    btnEliminar.addEventListener('click', async () => {
-        const confirmacion = confirm('¿Estás seguro de eliminar este pago de mora de préstamo?');
-        if (confirmacion) {
-            try {
-                await fetch(`${API_URL}/api/pagos-mora-prestamos/${p.id}`, {
-                    method: 'DELETE'
-                });
-                alert('Pago eliminado correctamente.');
-                location.reload();
-            } catch (err) {
-                console.error('Error al eliminar:', err);
-                alert('Error al eliminar el pago de mora.');
-            }
-        }
-    });
+            const btnEliminar = document.createElement('button');
+            btnEliminar.textContent = 'Eliminar';
+            btnEliminar.className = 'btn btn-eliminar';
+            btnEliminar.addEventListener('click', async () => {
+                if (confirm('¿Estás seguro de eliminar este pago de mora de préstamo?')) {
+                    try {
+                        await fetch(`${API_URL}/api/pagos-mora-prestamos/${p.id}`, { method: 'DELETE' });
+                        alert('Pago eliminado correctamente.');
+                        location.reload();
+                    } catch (err) {
+                        console.error('Error al eliminar:', err);
+                        alert('Error al eliminar el pago de mora.');
+                    }
+                }
+            });
 
-    accionesCell.appendChild(btnEditar);
-    accionesCell.appendChild(btnEliminar);
-});
-
+            accionesCell.appendChild(btnEditar);
+            accionesCell.appendChild(btnEliminar);
+        });
 
         totalMoraPrestamos.textContent = `$ ${totalPrestamos.toLocaleString('es-CO')}`;
     } catch (error) {
-        console.warn('No se pudieron cargar pagos de mora de préstamos (aún no implementado)');
+        console.warn('No se pudieron cargar pagos de mora de préstamos:', error);
     }
 
     // =========================

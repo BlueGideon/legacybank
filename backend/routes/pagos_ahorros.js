@@ -2,19 +2,52 @@ import express from 'express';
 const router = express.Router();
 import db from '../db.js';
 
-// Obtener pagos por nombre (para informes)
+// ✅ Obtener pagos por nombre SOLO del fondo actual
 router.get('/por-nombre/:nombre', async (req, res) => {
     try {
+        // Obtener el fondo actual
+        const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoActual.length) {
+            return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+        }
+        const fondoId = fondoActual[0].id;
+
         const [resultados] = await db.query(
             `SELECT pa.*, pa.fondo_id AS id_fondo
              FROM pagos_ahorros pa
-             WHERE pa.nombre = ?`,
-            [req.params.nombre]
+             WHERE pa.nombre = ? AND pa.fondo_id = ?`,
+            [req.params.nombre, fondoId]
         );
         res.json(resultados);
     } catch (err) {
-        console.error('Error al obtener pagos por nombre:', err);
+        console.error('❌ Error al obtener pagos por nombre:', err);
         res.status(500).json({ mensaje: 'Error al obtener pagos por nombre' });
+    }
+});
+
+// ✅ Obtener pagos con mora del fondo actual
+router.get('/moras', async (req, res) => {
+    try {
+        // 1. Fondo actual
+        const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoActual.length) {
+            return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+        }
+        const fondoId = fondoActual[0].id;
+
+        // 2. Solo pagos con mora > 0 en este fondo
+        const [pagosConMora] = await db.query(
+            `SELECT pa.*, pa.fondo_id AS id_fondo
+             FROM pagos_ahorros pa
+             WHERE pa.fondo_id = ? AND pa.dias_mora > 0`,
+            [fondoId]
+        );
+
+        res.json(pagosConMora);
+
+    } catch (err) {
+        console.error('❌ Error al obtener pagos con mora:', err);
+        res.status(500).json({ mensaje: 'Error al obtener pagos con mora' });
     }
 });
 

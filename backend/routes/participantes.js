@@ -2,10 +2,20 @@ import express from 'express';
 const router = express.Router();
 import db from '../db.js';
 
-// GET participantes con rol Usuario
+// ✅ GET participantes con rol Usuario y filtrados por fondo si se pasa como query
 router.get('/usuarios', async (req, res) => {
     try {
-        const [resultados] = await db.query('SELECT nombre, puesto, cantPuestos FROM participantes WHERE rol = "Usuario"');
+        const { fondo_id } = req.query;
+
+        let sql = `SELECT nombre, puesto, cantPuestos, fondo_id FROM participantes WHERE rol = 'Usuario'`;
+        const params = [];
+
+        if (fondo_id) {
+            sql += ` AND fondo_id = ?`;
+            params.push(fondo_id);
+        }
+
+        const [resultados] = await db.query(sql, params);
         res.json(resultados);
     } catch (err) {
         console.error('❌ Error en la consulta SQL:', err);
@@ -13,18 +23,19 @@ router.get('/usuarios', async (req, res) => {
     }
 });
 
+
 // ✅ Obtener participantes filtrados por fondo, participante y puesto
 router.get('/filtrados', async (req, res) => {
-    const { fondo, participante, puesto } = req.query;
+    const { fondo_id, participante, puesto } = req.query;
 
     try {
         let sql = `SELECT * FROM participantes WHERE 1=1`;
 
         const params = [];
 
-        if (fondo) {
-            sql += ` AND fondo = ?`;
-            params.push(fondo);
+        if (fondo_id) {
+            sql += ` AND fondo_id = ?`;
+            params.push(fondo_id);
         }
 
         if (participante) {
@@ -79,10 +90,10 @@ router.put('/cambiar-contrasena/:id', async (req, res) => {
 // Crear participante
 router.post('/', async (req, res) => {
     try {
-        const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo } = req.body;
-        const sql = `INSERT INTO participantes (nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo)
+        const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo_id } = req.body;
+        const sql = `INSERT INTO participantes (nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo_id)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const [result] = await db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo]);
+        const [result] = await db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo_id]);
         res.status(201).json({ mensaje: 'Participante creado con éxito', id: result.insertId });
     } catch (err) {
         console.error('Error al crear participante:', err);
@@ -126,11 +137,11 @@ router.delete('/:id', async (req, res) => {
 // Actualizar un participante por ID
 router.put('/:id', async (req, res) => {
     try {
-        const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo } = req.body;
+        const { nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo_id } = req.body;
         const sql = `UPDATE participantes 
-                     SET nombre = ?, correo = ?, contrasena = ?, telefono = ?, rol = ?, puesto = ?, cantPuestos = ?, fondo = ?
+                     SET nombre = ?, correo = ?, contrasena = ?, telefono = ?, rol = ?, puesto = ?, cantPuestos = ?, fondo_id = ?
                      WHERE id = ?`;
-        await db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo, req.params.id]);
+        await db.query(sql, [nombre, correo, contrasena, telefono, rol, puesto, cantPuestos, fondo_id, req.params.id]);
         res.json({ mensaje: 'Participante actualizado con éxito' });
     } catch (err) {
         console.error('Error al actualizar participante:', err);
@@ -139,4 +150,3 @@ router.put('/:id', async (req, res) => {
 });
 
 export default router;
-

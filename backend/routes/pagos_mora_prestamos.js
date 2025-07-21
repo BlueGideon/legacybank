@@ -3,6 +3,28 @@ import db from '../db.js';
 
 const router = express.Router();
 
+// ✅ Pagos solo del fondo actual
+router.get('/fondo-actual', async (req, res) => {
+    try {
+        const [fondoRes] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoRes.length) return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+
+        const idFondo = fondoRes[0].id;
+        const [rows] = await db.query(
+            `SELECT pmp.*, f.nombre AS fondo 
+             FROM pagos_mora_prestamos pmp
+             LEFT JOIN fondos f ON pmp.id_fondo = f.id
+             WHERE pmp.id_fondo = ?`,
+            [idFondo]
+        );
+
+        res.json(rows);
+    } catch (err) {
+        console.error('Error al obtener pagos mora préstamos (fondo actual):', err);
+        res.status(500).json({ mensaje: 'Error al obtener pagos de mora de préstamos' });
+    }
+});
+
 // ✅ Obtener pagos mora por préstamo (ya con nombre del fondo)
 router.get('/', async (req, res) => {
     try {
@@ -34,15 +56,29 @@ router.get('/abonados/:idPago', async (req, res) => {
 
 // Crear nuevo pago mora
 router.post('/', async (req, res) => {
-    const { solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo } = req.body;
+    let { solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo } = req.body;
+
     try {
+        // ✅ Si no viene el id_fondo, buscamos el fondo actual automáticamente
+        if (!id_fondo) {
+            const [fondoRes] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+            if (!fondoRes.length) return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+            id_fondo = fondoRes[0].id;
+        }
+
+        console.log("📌 Datos recibidos en backend (final):", { solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo });
+
         await db.query(
-            'INSERT INTO pagos_mora_prestamos (solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO pagos_mora_prestamos 
+            (solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo]
         );
         res.status(201).json({ mensaje: 'Pago de mora registrado' });
+
     } catch (err) {
-        res.status(500).json({ error: 'Error al registrar pago de mora' });
+        console.error("❌ Error al insertar pago mora prestamos:", err);
+        res.status(500).json({ error: err.message });
     }
 });
 

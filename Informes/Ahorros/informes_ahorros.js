@@ -50,14 +50,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Cargar participantes (solo usuarios con fondo actual)
     try {
         const fondoRes = await fetch(`${API_URL}/api/fondos/actual`);
-        const fondoActual = await fondoRes.json();
+const fondoActual = await fondoRes.json();
 
-        const participantesRes = await fetch(`${API_URL}/api/participantes`);
-        const participantes = await participantesRes.json();
+const participantesRes = await fetch(`${API_URL}/api/participantes`);
+const participantes = await participantesRes.json();
 
-        const usuarios = participantes.filter(p =>
-            p.rol === 'Usuario' && p.fondo === fondoActual.nombre
-        );
+// ✅ Filtrar por fondo actual usando fondo_id
+const usuarios = participantes.filter(p =>
+    p.rol === 'Usuario' && p.fondo_id === fondoActual.id
+);
+
 
         const nombresUnicos = [...new Set(usuarios.map(p => p.nombre))];
 

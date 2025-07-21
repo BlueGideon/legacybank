@@ -1,4 +1,5 @@
 import { API_URL } from "/Login/config.js";
+
 document.addEventListener('DOMContentLoaded', async () => {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -24,47 +25,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/Login/login.html';
     });
 
-    // Funcion para ir a pestaña participantes
-    btnParticipantes.addEventListener('click', function(event) {
-        event.preventDefault();
-
+    // Botones de navegación
+    btnParticipantes.addEventListener('click', e => {
+        e.preventDefault();
         window.location.href = '/Informes/Participantes/informes_participantes.html';
     });
-
-    // Funcion para ir a pestaña prestamos
-    btnPrestamos.addEventListener('click', function(event) {
-        event.preventDefault();
-
+    btnPrestamos.addEventListener('click', e => {
+        e.preventDefault();
         window.location.href = '/Informes/Prestamos/informes_prestamos.html';
     });
-
-    // Funcion para ir a pestaña ahorros
-    btnAhorros.addEventListener('click', function(event) {
-        event.preventDefault();
-
+    btnAhorros.addEventListener('click', e => {
+        e.preventDefault();
         window.location.href = '/Informes/Ahorros/informes_ahorros.html';
     });
 
     let movimientos = [];
+    let fondoActual = null; // ✅ Guardaremos aquí el nombre del fondo actual
 
-    // ✅ 1. Cargar fondos desde MySQL
-    async function cargarFondos() {
+    // ✅ 1. Obtener fondo actual
+    async function obtenerFondoActual() {
         try {
-            const res = await fetch(`${API_URL}/api/fondos`);
-            const fondos = await res.json();
+            const res = await fetch(`${API_URL}/api/fondos/actual`);
+            if (!res.ok) throw new Error("No se encontró un fondo actual");
+            const fondo = await res.json();
 
-            fondos.forEach(f => {
-                const option = document.createElement('option');
-                option.value = f.nombre;
-                option.textContent = f.nombre;
-                filtroFondo.appendChild(option);
-            });
+            fondoActual = fondo.nombre;
+            filtroFondo.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = fondoActual;
+            option.textContent = fondoActual;
+            filtroFondo.appendChild(option);
+            filtroFondo.disabled = true;
+
+            console.log("Fondo actual detectado:", fondoActual);
         } catch (err) {
-            console.error('Error cargando fondos:', err);
+            console.error("Error obteniendo fondo actual:", err);
+            alert("No hay un fondo marcado como actual en la base de datos.");
         }
     }
 
-    // ✅ 2. Obtener todos los movimientos (ingresos y gastos)
+    // ✅ 2. Cargar movimientos (ingresos y gastos)
     async function cargarMovimientos() {
         try {
             const [ahorrosRes, pagosPrestamosRes, prestamosRes, moraAhorrosRes, moraPrestamosRes] =
@@ -132,44 +132,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ✅ 3. Cargar filtros de año y mes automáticamente (con nombres de meses)
-function cargarFiltrosFecha() {
-    const nombresMeses = [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
+    // ✅ 3. Cargar años y meses para los filtros
+    function cargarFiltrosFecha() {
+        const nombresMeses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
 
-    const años = [...new Set(movimientos.map(m => new Date(m.fecha).getFullYear()))];
-    const meses = [...new Set(movimientos.map(m => new Date(m.fecha).getMonth() + 1))];
+        const años = [...new Set(movimientos.map(m => new Date(m.fecha).getFullYear()))];
+        const meses = [...new Set(movimientos.map(m => new Date(m.fecha).getMonth() + 1))];
 
-    años.sort().forEach(a => {
-        const option = document.createElement('option');
-        option.value = a;
-        option.textContent = a;
-        filtroAno.appendChild(option);
-    });
+        filtroAno.innerHTML = '<option value="" disabled selected>Selecciona el año</option>';
+        filtroMes.innerHTML = '<option value="" disabled selected>Selecciona el mes</option>';
 
-    meses.sort((a, b) => a - b).forEach(m => {
-        const option = document.createElement('option');
-        option.value = m; // ✅ Mantiene el número para el filtro
-        option.textContent = nombresMeses[m - 1]; // ✅ Muestra el nombre del mes
-        filtroMes.appendChild(option);
-    });
-}
+        años.sort().forEach(a => {
+            const option = document.createElement('option');
+            option.value = a;
+            option.textContent = a;
+            filtroAno.appendChild(option);
+        });
 
+        meses.sort((a, b) => a - b).forEach(m => {
+            const option = document.createElement('option');
+            option.value = m;
+            option.textContent = nombresMeses[m - 1];
+            filtroMes.appendChild(option);
+        });
+    }
 
-    // ✅ 4. Mostrar movimientos aplicando filtros
+    // ✅ 4. Mostrar movimientos (siempre filtra por el fondo actual)
     function mostrarMovimientos() {
         const tipo = filtroTipoMovimiento.value;
-        const fondo = filtroFondo.value;
         const anio = filtroAno.value;
         const mes = filtroMes.value;
 
         let filtrados = movimientos.filter(m => {
             const fecha = new Date(m.fecha);
             return (
+                m.fondo === fondoActual &&
                 (!tipo || tipo === 'Todos' || m.tipo === tipo) &&
-                (!fondo || m.fondo === fondo) &&
                 (!anio || fecha.getFullYear().toString() === anio) &&
                 (!mes || (fecha.getMonth() + 1).toString() === mes)
             );
@@ -202,18 +203,20 @@ function cargarFiltrosFecha() {
         totalGastosSpan.textContent = `$ ${totalGastos.toLocaleString('es-CO')}`;
     }
 
-    // ✅ 5. Descargar en Excel usando SheetJS
+    // ✅ 5. Descargar Excel (solo del fondo actual)
     btnDescargar.addEventListener('click', () => {
         const wsData = [
             ['Fecha', 'Tipo', 'Participante', 'Descripción', 'Valor', 'Fondo'],
-            ...movimientos.map(m => [
-                new Date(m.fecha).toLocaleDateString(),
-                m.tipo,
-                m.participante,
-                m.descripcion,
-                m.valor,
-                m.fondo
-            ])
+            ...movimientos
+                .filter(m => m.fondo === fondoActual)
+                .map(m => [
+                    new Date(m.fecha).toLocaleDateString(),
+                    m.tipo,
+                    m.participante,
+                    m.descripcion,
+                    m.valor,
+                    m.fondo
+                ])
         ];
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         const wb = XLSX.utils.book_new();
@@ -224,6 +227,6 @@ function cargarFiltrosFecha() {
     btnGenerar.addEventListener('click', mostrarMovimientos);
 
     // ✅ Inicio
-    await cargarFondos();
+    await obtenerFondoActual();
     await cargarMovimientos();
 });

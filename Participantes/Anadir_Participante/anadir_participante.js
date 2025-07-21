@@ -1,4 +1,5 @@
 import { API_URL } from "/Login/config.js";
+
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const rolSelect = document.getElementById('seleccionRol');
     const cantidadPuestosInput = document.getElementById('cantidadPuestos');
     const fondoInput = document.getElementById('fondoActualAsignado');
+    const fondoHiddenInput = document.getElementById('fondoActualId');
     const tituloFormulario = document.querySelector('.dashboard__titulo');
 
     const idEdicion = localStorage.getItem('participanteEnEdicionId');
@@ -28,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function () {
         tituloFormulario.textContent = 'Cambiar Contraseña';
         btnCrearParticipante.textContent = 'Actualizar Contraseña';
 
-        // Ocultar todos los campos menos la contraseña
         nombreInput.parentElement.style.display = 'none';
         correoInput.parentElement.style.display = 'none';
         telefonoInput.parentElement.style.display = 'none';
@@ -37,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
         cantidadPuestosInput.parentElement.style.display = 'none';
         fondoInput.parentElement.style.display = 'none';
 
-        // ✅ Crear input para confirmar contraseña
         const confirmarDiv = document.createElement('div');
         confirmarDiv.classList.add('datos__nuevo-participante');
         confirmarDiv.innerHTML = `
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ contrasena: nuevaContrasena })
             })
                 .then(res => res.json())
-                .then(data => {
+                .then(() => {
                     alert('Contraseña actualizada correctamente');
                     localStorage.removeItem('modoCambiarContrasenaAdmin');
                     window.location.href = '/Configuracion/configuracion.html';
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
 
-        return; // ⛔ No seguimos con el resto
+        return;
     }
 
     // ✅ --- MODO PERFIL ADMIN ---
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(datosActualizados)
             })
                 .then(res => res.json())
-                .then(data => {
+                .then(() => {
                     alert('Perfil actualizado correctamente');
                     admin.nombre = nombre;
                     admin.correo = correo;
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
 
-        return; // ⛔ No seguimos con crear/editar participantes
+        return;
     }
 
     // ✅ --- MODO NORMAL (CREAR / EDITAR PARTICIPANTES) ---
@@ -138,10 +138,12 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(fondo => {
                 fondoInput.value = fondo.nombre || 'Ninguno';
+                fondoHiddenInput.value = fondo.id || '';
             })
             .catch(error => {
                 console.error('Error al obtener fondo actual:', error);
                 fondoInput.value = 'Ninguno';
+                fondoHiddenInput.value = '';
             });
     }
 
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (idEdicion) {
         fetch(`${API_URL}/api/participantes/${idEdicion}`)
             .then(res => res.json())
-            .then(participante => {
+            .then(async participante => {
                 nombreInput.value = participante.nombre;
                 correoInput.value = participante.correo;
                 contrasenaInput.value = participante.contrasena;
@@ -172,9 +174,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 rolSelect.value = participante.rol;
                 puestoSelect.value = participante.puesto;
                 cantidadPuestosInput.value = participante.cantPuestos || '0';
-                fondoInput.value = participante.fondo;
                 toggleCamposPorRol(participante.rol);
                 btnCrearParticipante.textContent = 'Actualizar Participante';
+
+                // ✅ Obtenemos el nombre del fondo a partir del ID
+                if (participante.fondo_id) {
+                    try {
+                        const resFondo = await fetch(`${API_URL}/api/fondos/${participante.fondo_id}`);
+                        const fondoData = await resFondo.json();
+                        fondoInput.value = fondoData.nombre || 'Ninguno';
+                        fondoHiddenInput.value = participante.fondo_id;
+                    } catch (error) {
+                        console.error('Error al obtener el fondo del participante:', error);
+                        fondoInput.value = 'Ninguno';
+                        fondoHiddenInput.value = participante.fondo_id;
+                    }
+                }
             })
             .catch(error => {
                 console.error('Error al cargar participante:', error);
@@ -190,13 +205,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const rol = rolSelect.value;
         const puesto = puestoSelect.value || 'N/A';
         let cantPuestos = cantidadPuestosInput.value.trim();
-        const fondo = fondoInput.value;
+        const fondoId = fondoHiddenInput.value;
 
         if (rol === 'Administrador') {
             cantPuestos = 0;
         }
 
-        if (!nombre || !correo || !contrasena || !telefono || !rol || cantPuestos === '') {
+        if (!nombre || !correo || !contrasena || !telefono || !rol || cantPuestos === '' || !fondoId) {
             return alert('Por favor completa todos los campos obligatorios.');
         }
 
@@ -208,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
             rol,
             puesto,
             cantPuestos: parseFloat(cantPuestos),
-            fondo
+            fondo_id: fondoId
         };
 
         const url = idEdicion

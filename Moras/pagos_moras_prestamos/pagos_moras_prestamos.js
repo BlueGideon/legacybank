@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
                     });
-
+                    
                     if (!res.ok) throw new Error('Error al guardar el pago');
 
                     alert('Pago de mora guardado correctamente.');

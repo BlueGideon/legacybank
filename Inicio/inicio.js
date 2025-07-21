@@ -1,5 +1,4 @@
 import { API_URL } from "/Login/config.js";
-// 👆 Ajusta la ruta si inicio.js no está en la misma carpeta (aquí supongo que Inicio/ y Login/ están al mismo nivel)
 
 document.addEventListener('DOMContentLoaded', function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
@@ -28,22 +27,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             // 1. Obtener fondo actual
-            const fondoActualRes = await fetch(`${API_URL}/api/fondos/actual`);
-            const fondoActual = await fondoActualRes.json();
-            const fondoNombre = fondoActual.nombre;
+const fondoActualRes = await fetch(`${API_URL}/api/fondos/actual`);
+const fondoActual = await fondoActualRes.json();
+const fondoNombre = fondoActual.nombre;
+const fondoId = fondoActual.id; // ✅ Usar el ID
 
-            // 2. Obtener participantes
-            const participantesRes = await fetch(`${API_URL}/api/participantes`);
-            const participantes = await participantesRes.json();
+// 2. Obtener participantes
+const participantesRes = await fetch(`${API_URL}/api/participantes`);
+const participantes = await participantesRes.json();
 
-            // 3. Participantes activos
-            const participantesActivos = participantes.filter(p =>
-                p.rol === 'Usuario' && p.fondo === fondoNombre
-            ).length;
+// ✅ Filtrar por fondo actual usando fondo_id en vez de fondo (nombre)
+const participantesActivos = participantes.filter(p =>
+    p.rol === 'Usuario' && p.fondo_id === fondoId
+).length;
 
-            document.getElementById('participantesActivos').textContent = participantesActivos;
+document.getElementById('participantesActivos').textContent = participantesActivos;
 
-            // 4. Obtener datos de ingresos y egresos
+
+            // 3. Obtener datos de ingresos y egresos
             const [
                 pagosAhorrosRes,
                 pagosPrestamosRes,
@@ -58,13 +59,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetch(`${API_URL}/api/pagos-mora-prestamos`)
             ]);
 
-            const pagosAhorros = await pagosAhorrosRes.json();
-            const pagosPrestamos = await pagosPrestamosRes.json();
-            const prestamos = await prestamosRes.json();
-            const pagosMoraAhorros = await pagosMoraAhorrosRes.json();
-            const pagosMoraPrestamos = await pagosMoraPrestamosRes.json();
+            let pagosAhorros = await pagosAhorrosRes.json();
+            let pagosPrestamos = await pagosPrestamosRes.json();
+            let prestamos = await prestamosRes.json();
+            let pagosMoraAhorros = await pagosMoraAhorrosRes.json();
+            let pagosMoraPrestamos = await pagosMoraPrestamosRes.json();
 
-            // 5. Calcular totales
+            // ✅ Filtrar TODOS los datos por el fondo actual
+            pagosAhorros = pagosAhorros.filter(p => p.fondo === fondoNombre);
+            pagosPrestamos = pagosPrestamos.filter(p => p.fondo === fondoNombre);
+            prestamos = prestamos.filter(p => p.fondo === fondoNombre);
+            pagosMoraAhorros = pagosMoraAhorros.filter(p => p.fondo === fondoNombre);
+            pagosMoraPrestamos = pagosMoraPrestamos.filter(p => p.fondo === fondoNombre);
+
+            // 4. Calcular totales
             const totalAhorros = pagosAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
             const totalPagosPrestamos = pagosPrestamos.reduce((sum, p) => sum + parseFloat(p.vpago || 0), 0);
             const totalPagosMoraAhorros = pagosMoraAhorros.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
@@ -74,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const fondosDisponibles = totalAhorros + totalPagosPrestamos + totalPagosMoraAhorros + totalPagosMoraPrestamos - totalPrestado;
             document.getElementById('fondosDisponibles').textContent = `$ ${fondosDisponibles.toLocaleString('es-CO')}`;
 
-            // 6. Calcular préstamos activos
+            // 5. Calcular préstamos activos
             let prestamosActivos = 0;
             for (let prestamo of prestamos) {
                 const valorPrestamo = parseFloat(prestamo.vprestamo || 0);
@@ -85,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const totalPagar = valorCuota * nCuotas;
 
                 const pagado = pagosPrestamos
-                    .filter(p => p.solicitante === prestamo.solicitante)
+                    .filter(p => p.idPrestamo === prestamo.id) // ✅ usa idPrestamo (mejor que solicitante)
                     .reduce((sum, p) => sum + parseFloat(p.vpago || 0), 0);
 
                 const saldo = totalPagar - pagado;

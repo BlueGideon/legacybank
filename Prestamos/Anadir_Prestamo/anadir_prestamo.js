@@ -1,5 +1,6 @@
 import { API_URL } from "/Login/config.js";
-document.addEventListener('DOMContentLoaded', function () {
+
+document.addEventListener('DOMContentLoaded', async function () {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
 
     if (!admin) {
@@ -12,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnAgregarPrestamo = document.getElementById('btnAgregarPrestamo');
     const nombreSelect = document.getElementById('nombreParticipante');
 
-    // 🔐 Cerrar sesión
     btnCerrarSesion.addEventListener('click', function (event) {
         event.preventDefault();
         localStorage.removeItem('adminActivo');
@@ -20,62 +20,68 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const idEdicion = localStorage.getItem('prestamoEnEdicionID');
-    let prestamoEnEdicion = null; // Guardamos los datos del préstamo mientras cargan los participantes
+    let prestamoEnEdicion = null;
+    let fondoActualId = null;
 
-    if (idEdicion) {
-        document.querySelector('h1').textContent = 'Actualizar Préstamo';
-        btnAgregarPrestamo.textContent = 'Actualizar Préstamo';
+    try {
+        // ✅ 1. OBTENER FONDO ACTUAL (ID Y NOMBRE)
+        const fondoRes = await fetch(`${API_URL}/api/fondos/actual`);
+        const fondoActual = await fondoRes.json();
+        fondoActualId = fondoActual.id;
 
-        // Primero traemos el préstamo, pero NO llenamos aún el select
-        fetch(`${API_URL}/api/prestamos/${idEdicion}`)
-            .then(res => res.json())
-            .then(prestamo => {
-                prestamoEnEdicion = prestamo;
-                document.getElementById('fechaPrestamo').value = prestamo.fprestamo.split('T')[0];
-                document.getElementById('solicitante').value = prestamo.solicitante;
-                document.getElementById('valorPrestamo').value = prestamo.vprestamo;
-                document.getElementById('seleccionTasa').value = prestamo.selecciontasa;
-                document.getElementById('numeroCuotas').value = prestamo.ncuotas;
-            })
-            .catch(err => {
-                console.error('Error al cargar préstamo para edición:', err);
-                alert('Error al cargar el préstamo para edición');
-            });
-    }
+        // ✅ 2. CARGAR PARTICIPANTES DEL FONDO ACTUAL
+        const participantesRes = await fetch(`${API_URL}/api/participantes/usuarios?fondo_id=${fondoActualId}`);
+        const participantes = await participantesRes.json();
 
-    // 🧑‍🤝‍🧑 Cargar participantes con rol 'Usuario' desde MySQL
-    fetch(`${API_URL}/api/participantes/usuarios`)
-        .then(res => res.json())
-        .then(participantes => {
-            nombreSelect.innerHTML = ''; // Limpiar opciones previas
+        nombreSelect.innerHTML = '';
 
-            if (participantes.length === 0) {
-                const opcion = document.createElement('option');
-                opcion.textContent = 'No hay usuarios registrados';
-                opcion.disabled = true;
-                nombreSelect.appendChild(opcion);
-                return;
-            }
+        const opcionDefault = document.createElement('option');
+        opcionDefault.value = '';
+        opcionDefault.textContent = 'Seleccionar participante';
+        opcionDefault.disabled = true;
+        opcionDefault.selected = true;
+        nombreSelect.appendChild(opcionDefault);
 
+        if (participantes.length === 0) {
+            const opcion = document.createElement('option');
+            opcion.textContent = 'No hay usuarios registrados en este fondo';
+            opcion.disabled = true;
+            nombreSelect.appendChild(opcion);
+        } else {
             participantes.forEach(part => {
                 const opcion = document.createElement('option');
                 opcion.value = part.nombre;
                 opcion.textContent = part.nombre;
-                opcion.setAttribute('data-puesto', part.puesto);
                 nombreSelect.appendChild(opcion);
             });
+        }
+    } catch (error) {
+        console.error('Error cargando fondo o participantes:', error);
+        alert('Error al cargar los datos iniciales');
+    }
 
-            // ✅ Si estamos en edición, seleccionamos el nombre correcto AHORA que ya cargó el select
-            if (idEdicion && prestamoEnEdicion) {
-                nombreSelect.value = prestamoEnEdicion.nombre;
-            }
-        })
-        .catch(err => {
-            console.error('Error al cargar participantes:', err);
-            alert('Error al cargar usuarios');
-        });
+    // ✅ 3. CARGAR PRÉSTAMO SI ESTAMOS EDITANDO
+    if (idEdicion) {
+        document.querySelector('h1').textContent = 'Actualizar Préstamo';
+        btnAgregarPrestamo.textContent = 'Actualizar Préstamo';
 
-    // 📌 Guardar o actualizar préstamo
+        try {
+            const res = await fetch(`${API_URL}/api/prestamos/${idEdicion}`);
+            prestamoEnEdicion = await res.json();
+
+            document.getElementById('fechaPrestamo').value = prestamoEnEdicion.fprestamo.split('T')[0];
+            document.getElementById('solicitante').value = prestamoEnEdicion.solicitante;
+            document.getElementById('valorPrestamo').value = prestamoEnEdicion.vprestamo;
+            document.getElementById('seleccionTasa').value = prestamoEnEdicion.selecciontasa;
+            document.getElementById('numeroCuotas').value = prestamoEnEdicion.ncuotas;
+            nombreSelect.value = prestamoEnEdicion.nombre;
+        } catch (err) {
+            console.error('Error al cargar préstamo para edición:', err);
+            alert('Error al cargar el préstamo para edición');
+        }
+    }
+
+    // ✅ 4. GUARDAR O ACTUALIZAR PRÉSTAMO
     btnAgregarPrestamo.addEventListener('click', async function () {
         const fechaPrestamo = document.getElementById('fechaPrestamo').value;
         const nombreParticipante = document.getElementById('nombreParticipante').value;
@@ -108,51 +114,36 @@ document.addEventListener('DOMContentLoaded', function () {
             valorInteres,
             valorCuota,
             ganancia,
-            valorTotalPagar
+            valorTotalPagar,
+            fondo_id: fondoActualId // ✅ AHORA GUARDAMOS EL ID DEL FONDO
         };
 
         try {
-            let res, data;
+            const url = idEdicion
+                ? `${API_URL}/api/prestamos/${idEdicion}`
+                : `${API_URL}/api/prestamos`;
 
-            if (idEdicion) {
-                // Actualizar préstamo existente
-                res = await fetch(`${API_URL}/api/prestamos/${idEdicion}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(prestamoData)
-                });
-                data = await res.json();
+            const metodo = idEdicion ? 'PUT' : 'POST';
 
-                if (!res.ok) {
-                    alert(data.mensaje || 'Error al actualizar el préstamo.');
-                    return;
-                }
+            const res = await fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(prestamoData)
+            });
 
-                localStorage.removeItem('prestamoEnEdicionID');
-                alert('Préstamo actualizado con éxito');
-            } else {
-                // Crear nuevo préstamo
-                res = await fetch(`${API_URL}/api/prestamos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(prestamoData)
-                });
-                data = await res.json();
+            const data = await res.json();
 
-                if (!res.ok) {
-                    alert(data.mensaje || 'Error al guardar el préstamo.');
-                    return;
-                }
-
-                alert('Préstamo guardado con éxito');
+            if (!res.ok) {
+                alert(data.mensaje || 'Error al guardar el préstamo.');
+                return;
             }
 
+            alert(data.mensaje || 'Préstamo guardado con éxito');
+            localStorage.removeItem('prestamoEnEdicionID');
             window.location.href = '/Prestamos/Gestionar_Prestamos/gestion_prestamos.html';
-
         } catch (error) {
-            console.error('Error al guardar/actualizar préstamo:', error);
-            alert('Error de conexión al guardar o actualizar préstamo.');
+            console.error('Error al guardar préstamo:', error);
+            alert('Hubo un error al guardar el préstamo.');
         }
     });
 });
-

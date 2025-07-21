@@ -3,6 +3,29 @@ import db from '../db.js';
 
 const router = express.Router();
 
+// ✅ Pagos solo del fondo actual
+router.get('/fondo-actual', async (req, res) => {
+    try {
+        const [fondoRes] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoRes.length) return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+
+        const idFondo = fondoRes[0].id;
+        const [rows] = await db.query(
+            `SELECT pma.*, f.nombre AS fondo 
+             FROM pagos_mora_ahorros pma
+             LEFT JOIN fondos f ON pma.id_fondo = f.id
+             WHERE pma.id_fondo = ?`,
+            [idFondo]
+        );
+
+        res.json(rows);
+    } catch (err) {
+        console.error('Error al obtener pagos de mora (fondo actual):', err);
+        res.status(500).json({ mensaje: 'Error al obtener pagos de mora' });
+    }
+});
+
+
 // ✅ Obtener todos los pagos de mora por ahorros (ya con nombre del fondo)
 router.get('/', async (req, res) => {
     try {

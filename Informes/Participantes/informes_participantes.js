@@ -1,4 +1,5 @@
 import { API_URL } from "/Login/config.js";
+
 document.addEventListener('DOMContentLoaded', () => {
     const admin = JSON.parse(localStorage.getItem('adminActivo'));
     if (!admin) {
@@ -23,28 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/Login/login.html';
     });
 
-    // Funcion para ir a pestaña ahorros
-    btnAhorros.addEventListener('click', function(event) {
-        event.preventDefault();
-
+    // Botones de pestañas
+    btnAhorros.addEventListener('click', e => {
+        e.preventDefault();
         window.location.href = '/Informes/Ahorros/informes_ahorros.html';
     });
-
-    // Funcion para ir a pestaña prestamos
-    btnPrestamos.addEventListener('click', function(event) {
-        event.preventDefault();
-
+    btnPrestamos.addEventListener('click', e => {
+        e.preventDefault();
         window.location.href = '/Informes/Prestamos/informes_prestamos.html';
     });
-
-    // Funcion para ir a pestaña ingresos y gastos
-    btnIngresosGastos.addEventListener('click', function(event) {
-        event.preventDefault();
-
+    btnIngresosGastos.addEventListener('click', e => {
+        e.preventDefault();
         window.location.href = '/Informes/IngresosGastos/informes_ingresosgastos.html';
     });
 
-    // ✅ 1. Cargar Fondos desde MySQL
+    // ✅ 1. Cargar Fondos desde MySQL (value = id, text = nombre)
     async function cargarFondos() {
         filtroFondo.innerHTML = '<option disabled selected>Selecciona fondo</option>';
         try {
@@ -53,22 +47,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             fondos.forEach(fondo => {
                 const option = document.createElement('option');
-                option.value = fondo.nombre;
-                option.textContent = fondo.nombre;
+                option.value = fondo.id; // ✅ Usamos el ID para filtrar
+                option.textContent = fondo.nombre; // ✅ Mostramos el nombre
                 filtroFondo.appendChild(option);
             });
+
         } catch (error) {
             console.error('Error cargando fondos:', error);
         }
     }
 
-    // ✅ 2. Cargar Participantes según Fondo
-    async function cargarParticipantesPorFondo(nombreFondo) {
+    // ✅ 2. Cargar Participantes según Fondo (filtra por idFondo)
+    async function cargarParticipantesPorFondo(idFondo) {
         try {
             const response = await fetch(`${API_URL}/api/participantes`);
             const todos = await response.json();
 
-            const participantesDelFondo = todos.filter(p => p.fondo === nombreFondo && p.rol === 'Usuario');
+            const participantesDelFondo = todos.filter(
+                p => p.fondo_id === parseInt(idFondo) && p.rol === 'Usuario'
+            );
 
             // Participantes únicos
             filtroParticipante.innerHTML = '<option disabled selected>Selecciona Participante</option>';
@@ -93,33 +90,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ✅ 3. Generar Informe
+    // ✅ 3. Generar Informe (filtra por idFondo, muestra nombreFondo)
     async function generarInformeParticipantes() {
-        const fondo = filtroFondo.value;
+        const idFondo = filtroFondo.value;
         const participante = filtroParticipante.value;
         const puesto = filtroPuesto.value;
 
-        if (!fondo || fondo === 'Selecciona fondo') {
+        if (!idFondo || idFondo === 'Selecciona fondo') {
             alert('Debes seleccionar un fondo');
             return;
         }
 
         try {
-            const res = await fetch(`${API_URL}/api/participantes`);
-            const participantes = await res.json();
+            // Obtener participantes y fondos
+            const [resParticipantes, resFondos] = await Promise.all([
+                fetch(`${API_URL}/api/participantes`),
+                fetch(`${API_URL}/api/fondos`)
+            ]);
 
-            let filtrados = participantes.filter(p => p.fondo === fondo && p.rol === 'Usuario');
+            const participantes = await resParticipantes.json();
+            const fondos = await resFondos.json();
+
+            // Encontrar el nombre del fondo seleccionado
+            const fondoSeleccionado = fondos.find(f => f.id === parseInt(idFondo));
+
+            // Filtrar participantes por idFondo
+            let filtrados = participantes.filter(
+                p => p.fondo_id === parseInt(idFondo) && p.rol === 'Usuario'
+            );
 
             if (participante && participante !== 'Selecciona Participante') {
-                filtrados = filtrados.filter(p => p.nombre === participante);
+                filtrados = filtrados.filter(
+                    p => p.nombre.trim().toLowerCase() === participante.trim().toLowerCase()
+                );
             }
 
             if (puesto && puesto !== 'Selecciona el puesto') {
-                filtrados = filtrados.filter(p => p.puesto === puesto);
+                filtrados = filtrados.filter(
+                    p => p.puesto.trim().toLowerCase() === puesto.trim().toLowerCase()
+                );
             }
 
+            // Pintar tabla
             cuerpoTabla.innerHTML = '';
-
             if (filtrados.length === 0) {
                 const row = cuerpoTabla.insertRow();
                 const cell = row.insertCell();
@@ -135,13 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     row.insertCell().textContent = p.telefono;
                     row.insertCell().textContent = p.puesto;
                     row.insertCell().textContent = p.rol;
-                    row.insertCell().textContent = p.fondo;
+                    // ✅ Muestra el nombre del fondo, no el ID
+                    row.insertCell().textContent = fondoSeleccionado ? fondoSeleccionado.nombre : 'Desconocido';
                 });
             }
 
             totalParticipantes.textContent = filtrados.length;
             totalPuesto.textContent =
-                `${filtrados.filter(p => p.puesto === 'Completo').length} / ${filtrados.filter(p => p.puesto === 'Medio').length}`;
+                `${filtrados.filter(p => p.puesto.toLowerCase() === 'completo').length} / 
+                 ${filtrados.filter(p => p.puesto.toLowerCase() === 'medio').length}`;
 
         } catch (error) {
             console.error('Error generando informe:', error);
@@ -159,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ✅ 5. Eventos
     filtroFondo.addEventListener('change', () => {
-        const fondo = filtroFondo.value;
-        cargarParticipantesPorFondo(fondo);
+        const idFondo = filtroFondo.value;
+        cargarParticipantesPorFondo(idFondo);
     });
 
     btnGenerar.addEventListener('click', generarInformeParticipantes);

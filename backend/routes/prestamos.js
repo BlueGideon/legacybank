@@ -57,17 +57,32 @@ router.post('/', async (req, res) => {
 });
 
 
-// Obtener todos los préstamos
+// ✅ Obtener préstamos del fondo actual si no se envía fondo_id
 router.get('/', async (req, res) => {
     try {
-        const [results] = await db.query(`
+        let { fondo_id } = req.query;
+
+        // 🔥 Aquí es donde lo ajustamos
+        if (!fondo_id) {
+            const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+            if (!fondoActual.length) {
+                return res.status(400).json({ mensaje: 'No hay fondo actual establecido' });
+            }
+            fondo_id = fondoActual[0].id;
+        }
+
+        const sql = `
             SELECT p.*, f.nombre AS fondo
             FROM prestamos p
             JOIN fondos f ON p.fondo_id = f.id
+            WHERE f.id = ?
             ORDER BY p.id DESC
-        `);
+        `;
+
+        const [results] = await db.query(sql, [fondo_id]);
         res.json(results);
     } catch (err) {
+        console.error('❌ Error al obtener préstamos:', err);
         res.status(500).json({ mensaje: 'Error al obtener préstamos' });
     }
 });
