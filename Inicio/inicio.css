@@ -160,6 +160,7 @@ body {
     padding: 15px;
     border-radius: 12px;
     text-align: center;
+    cursor: pointer;
 }
 
 .card__valor {

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="/imagenes/Favicon.ico">
-    <link rel="stylesheet" href="inicio.css">
+    <link rel="stylesheet" href="/Inicio/Liquidaciones/liquidacion.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>LegacyBank - Inicio</title>
+    <title>LegacyBank - Liquidaciones</title>
 </head>
 <body>
     <div class="container__principal">
@@ -14,10 +14,10 @@
          <aside class="menu__lateral">
             <div class="menu__top">
                 <div class="container__logo">
-                    <img class="logo" src="../imagenes/Logo Completo.png" alt="Logo LegacyBank">
+                    <img class="logo" src="/imagenes/Logo Completo.png" alt="Logo LegacyBank">
                 </div>
                 <nav class="nav"> 
-                    <a href="/Inicio/inicio.html" class="active"><i class="fas fa-house"></i>Inicio</a>
+                    <a href="/Inicio/inicio.html"><i class="fas fa-house"></i>Inicio</a>
 
                     <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i>Fondos</a>
 
@@ -40,36 +40,45 @@
         <!-- Main Panel -->
          <main class="main__panel">
             <header class="header">
-                <div class="bienvenida" id="mensajeBienvenida">Bienvenido, Administrador</div>
                 <button class="cerrar__sesion" id="btnCerrarSesion">Cerrar Sesión</button>
             </header>
 
             <section class="dashboard">
-                <h1 class="dashboard__titulo">Panel de Control</h1>
-                <div class="container__cards">
-                    <div class="card">
-                        <p class="card__valor" id="fondosDisponibles">$ 0</p>
-                        <p class="card__descripcion">Fondos Disponibles</p>
-                    </div>
-                    <div class="card">
-                        <p class="card__valor" id="participantesActivos">0</p>
-                        <p class="card__descripcion">Participantes Activos</p>
-                    </div>
-                    <div class="card">
-                        <p class="card__valor" id="prestamosActivos">0</p>
-                        <p class="card__descripcion">Préstamos Activos</p>
-                    </div>
+                <h1 class="dashboard__titulo">Liquidación Actual</h1>
+                <div class="nav__liquidaciones">
+                    <button class="navBtn" id="btnAtras">← Atras</button>
+                    <button class="navBtn" id="btnLiquidar">Liquidar</button>
+                    <button class="navBtn" id="btnVerLiquidaciones">Ver Liquidaciones</button>
                 </div>
-                <div class="container__cards">
-                    <div class="card__liquidaciones" id="btnLiquidaciones">
-                        <p class="card__titulo">Liquidaciones</p>
-                        <p class="card__descripcion d-liquidaciones">Gestiona las liquidaciones de tus participantes</p>
-                    </div>
+                <div class="container__tabla">
+                    <table class="tabla">
+                        <tr>
+                            <tr>
+                                <th rowspan="2">N°</th>
+                                <th rowspan="2">N° Puestos</th>
+                                <th rowspan="2">% Puesto</th>
+                                <th rowspan="2">Participante</th>
+                                <th rowspan="2">Ahorro</th>
+                                <th rowspan="2">G. Prestamos</th>
+                                <th rowspan="2">Rentabilidad</th>
+                                <th colspan="4" style="text-align: center;">Descuentos</th>
+                                <th rowspan="2">D. Multas</th>
+                                <th rowspan="2">Total a Entregar</th>
+                            </tr>
+                            <tr>
+                                <th>Restante Préstamos</th>
+                                <th>M. Prestamos</th>
+                                <th>M. Ahorros</th>
+                                <th>Multa</th>
+                            </tr>
+                        </tr>
+                        <tbody id="tablaLiquidacionCuerpo"></tbody>
+                    </table>
                 </div>
             </section>
         </main>
         <div class="menu__inferior">
-            <a href="/Inicio/inicio.html" class="active"><i class="fas fa-house"></i></a>
+            <a href="/Inicio/inicio.html"><i class="fas fa-house"></i></a>
             <a href="/Fondos/fondos.html"><i class="fas fa-piggy-bank"></i></a>
             <a href="/Participantes/Gestion_Participantes/gestion_participantes.html"><i class="fas fa-users"></i></a>
             <a href="/Pagos/Gestionar_Pagos/gestion_pagos.html"><i class="fas fa-money-bill-wave"></i></a>
@@ -80,6 +89,6 @@
         </div>
 
     </div>
-    <script type="module" src="inicio.js"></script>
+    <script type="module" src="/Inicio/Liquidaciones/liquidacion.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ body {
 
 .container__principal {
     display: flex;
-    min-height: 100vh; /* mejor que height fija */
+    height: 100vh;
 }
 
 .menu__lateral {
@@ -124,45 +124,13 @@ body {
     color: #fff;
 }
 
-/* Informacion total ahorrado */
-.container__total-ahorrado {
-    display: flex;
-    justify-content: center;
-    margin: 15px;
-}
-
-.total-ahorrado {
-    display: flex;
-    flex-direction: column;
-    background-color: #fff;
-    border: 5px solid #75965f;
-    border-radius: 10px;
-    text-align: center;
-    padding: 10px;
-}
-
-.titulo {
-    font-size: 1.6em;
-    font-weight: bold;
-    color: #75965f;
-    margin: 5px;
-}
-
-.valor {
-    font-size: 1.6em;
-    font-weight: bold;
-    margin: 5px;
-}
-
-/* Añadir participante */
-
-.nav__anadir-pago {
+.nav__atras {
     display: flex;
     justify-content: flex-start;
     align-items: center;
 }
 
-.anadir_pago {
+.atras {
     background-color: #659ea4;
     border: 1px solid #659ea4;
     padding: 8px 16px;
@@ -172,72 +140,93 @@ body {
     transition: .3s;
 }
 
-.anadir_pago:hover {
+.atras:hover {
     background-color: transparent;
     border: 1px solid #659ea4;
 }
 
-/* Tabla participantes */
+/* Formulario */
 
-.container__tabla {
+.container__form {
     display: flex;
     justify-content: center;
-    padding: 20px; 
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
 }
 
-.tabla {
-    width: 100%;
+.form__liquidarParticipante {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #659ea4;
     color: #fff;
-    border: 2px solid #fff;
-    box-shadow: 0 0 35px #659ea4;
-    border-radius: 10px;
-    margin-top: 20px;
-    padding: 5px;
-}
-
-.tabla th, .tabla td {
-    border-bottom: 1px solid #659ea4;
     padding: 10px 15px;
-    text-align: center;
+    border-radius: 10px;
+    width: 300px;
 }
 
-.tabla th {
+.datos__liquidarParticipante {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+}
+
+.label__liquidarParticipante {
+    font-size: 1em;
+    margin-bottom: 5px;
+}
+
+.input__liquidarParticipante {
+    background-color: transparent;
+    padding: 10px 10px;
+    border: 2px solid #ddd;
+    border-radius: 10px 4px 10px 4px;
+    color: #659ea4;
+}
+
+.input__liquidarParticipante::placeholder {
+    color: #bbb9;
+}
+
+.seleccion-puesto, .seleccion-mes {
+    background-color: transparent;
+    padding: 10px 10px;
+    border: 2px solid #ddd;
+    border-radius: 10px 4px 10px 4px;
+    color: #659ea4;
+}
+
+.container__boton {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.boton__liquidarParticipante {
     background-color: #659ea4;
+    border: 1px solid #659ea4;
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: #fff;
+    font-size: 1em;
     font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-.acciones button { 
-    font-weight: bold;
-    margin-right: 5px;
-    padding: 8px 12px;
-    border: none;
-    border-radius:5px; 
-    cursor: pointer; 
-}
-        
-.editar-btn { 
-    background-color: #ff0;
-    color: #000; 
-}
-        
-.eliminar-btn { 
-    background-color: #f00; 
-    color: #fff; 
+.boton__liquidarParticipante:hover {
+    background-color: #456d71;
+    border: 1px solid #456d71;
 }
 
 .menu__inferior {
   display: none;
 }
 
-/* ======= ESTILOS PARA MÓVILES ======= */
+/* Estilos para moviles */
 @media (max-width: 768px) {
-    .container__principal {
-        flex-direction: column; 
-        min-height: auto; 
-    }
-
     .menu__lateral {
-        display: none;
+        display: none; /* Ocultar menú lateral en móvil */
     }
 
     .menu__inferior {
@@ -271,10 +260,6 @@ body {
         font-size: 24px;
     }
 
-    .main__panel {
-        padding: 20px 10px 90px; /* ✅ espacio solo para el menú inferior */
-    }
-
     .dashboard {
         margin-top: 0;
     }
@@ -284,36 +269,18 @@ body {
         color: #fff;
     }
 
-    .titulo, .valor {
-        font-size: 1.4em;
-    }
-
-    .container__tabla {
-        display: block; /* ✅ en móviles no uses flex */
-        width: 100%;
-        overflow-x: auto;
+    .container__form {
+        margin: 10px 0 10px 0;        
+        width: 100%;            
         padding: 10px;
-        margin: 0; /* ✅ elimina márgenes que desalineen */
+}
+
+    .form__liquidarParticipante {
+        width: 100%;
+        max-width: none;
     }
 
-    .container__tabla::-webkit-scrollbar {
-        display: none;
-    }
-
-    .tabla {
-        display: table; /* ✅ restablece comportamiento normal */
-        margin: 10px; /* ✅ centrado visual si no hace scroll */
-        width: auto; /* ✅ ancho solo lo necesario */
-        min-width: 600px; /* ✅ permite scroll horizontal */
-        font-size: 0.9em;
-    }
-
-    .tabla th, .tabla td {
-        padding: 8px;
-        white-space: nowrap;
-    }
-
-    .tabla tr:nth-child(even) {
-        background-color: rgba(255,255,255,0.05);
+    .datos__liquidarParticipante {
+        margin: 7px 0;
     }
 }

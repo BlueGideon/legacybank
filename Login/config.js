@@ -4,5 +4,5 @@ const isLocal = window.location.hostname === "127.0.0.1" ||
 
 // ✅ CAMBIA ESTA IP por la tuya si es diferente
 export const API_URL = isLocal
-    ? "http://192.168.1.8:3000" // Tu backend en casa
-    : "http://192.168.1.8:3000"; // También mientras uses datos
+    ? "http://192.168.1.11:3000" // Tu backend en casa
+    : "http://192.168.1.11:3000"; // También mientras uses datos

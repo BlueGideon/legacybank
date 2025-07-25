@@ -12,6 +12,8 @@ import pagosPrestamosRoutes from './routes/pagos_prestamos.js';
 import pagosMoraAhorrosRoutes from './routes/pagos_mora_ahorros.js';
 import pagosMoraPrestamosRoutes from './routes/pagos_mora_prestamos.js';
 import informesPrestamosRoutes from './routes/informes_prestamos.js';
+import multasMorasRoutes from "./routes/multas_moras.js";
+import liquidacionesRoutes from "./routes/liquidaciones.js";
 
 const app = express();
 
@@ -29,6 +31,8 @@ app.use('/api/pagos-prestamos', pagosPrestamosRoutes);
 app.use('/api/pagos-mora-ahorros', pagosMoraAhorrosRoutes);
 app.use('/api/pagos-mora-prestamos', pagosMoraPrestamosRoutes);
 app.use('/api/informes-prestamos', informesPrestamosRoutes);
+app.use("/api/multas-moras", multasMorasRoutes);
+app.use("/api/liquidaciones", liquidacionesRoutes);
 
 
 // Ruta de prueba

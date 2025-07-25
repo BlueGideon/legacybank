@@ -2,6 +2,23 @@ import express from 'express';
 const router = express.Router();
 import db from '../db.js';
 
+// ✅ Obtener un participante específico por nombre y fondo
+router.get('/buscar', async (req, res) => {
+    try {
+        const { nombre, fondo_id } = req.query;
+        const [resultados] = await db.query(
+            `SELECT nombre, cantPuestos 
+             FROM participantes 
+             WHERE nombre = ? AND fondo_id = ? AND rol = 'Usuario'`,
+            [nombre, fondo_id]
+        );
+        res.json(resultados[0] || {});
+    } catch (err) {
+        console.error("Error al buscar participante:", err);
+        res.status(500).json({ mensaje: "Error al buscar participante" });
+    }
+});
+
 // ✅ GET participantes con rol Usuario y filtrados por fondo si se pasa como query
 router.get('/usuarios', async (req, res) => {
     try {

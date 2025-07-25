@@ -6,7 +6,7 @@ body {
 
 .container__principal {
     display: flex;
-    min-height: 100vh; /* mejor que height fija */
+    height: 100vh;
 }
 
 .menu__lateral {
@@ -124,45 +124,16 @@ body {
     color: #fff;
 }
 
-/* Informacion total ahorrado */
-.container__total-ahorrado {
-    display: flex;
-    justify-content: center;
-    margin: 15px;
-}
+/* Añadir prestamo */
 
-.total-ahorrado {
-    display: flex;
-    flex-direction: column;
-    background-color: #fff;
-    border: 5px solid #75965f;
-    border-radius: 10px;
-    text-align: center;
-    padding: 10px;
-}
-
-.titulo {
-    font-size: 1.6em;
-    font-weight: bold;
-    color: #75965f;
-    margin: 5px;
-}
-
-.valor {
-    font-size: 1.6em;
-    font-weight: bold;
-    margin: 5px;
-}
-
-/* Añadir participante */
-
-.nav__anadir-pago {
+.nav__liquidaciones {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    gap: 10px;
 }
 
-.anadir_pago {
+.navBtn {
     background-color: #659ea4;
     border: 1px solid #659ea4;
     padding: 8px 16px;
@@ -172,7 +143,7 @@ body {
     transition: .3s;
 }
 
-.anadir_pago:hover {
+.navBtn:hover {
     background-color: transparent;
     border: 1px solid #659ea4;
 }
@@ -201,32 +172,50 @@ body {
     text-align: center;
 }
 
+.tabla td {
+    font-size: 14px;
+}
+
 .tabla th {
     background-color: #659ea4;
     font-weight: bold;
 }
 
-.acciones button { 
+.fila-total {
+    background-color: #fff !important;
     font-weight: bold;
-    margin-right: 5px;
-    padding: 8px 12px;
-    border: none;
-    border-radius:5px; 
-    cursor: pointer; 
+    color: #75965f;
+    text-align: center;
 }
-        
-.editar-btn { 
-    background-color: #ff0;
-    color: #000; 
+
+.fila-total td {
+    padding: 8px;
+    font-size: 1em;
 }
-        
-.eliminar-btn { 
-    background-color: #f00; 
-    color: #fff; 
+
+.tabla td.celda-ganancia-prestamos {
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    background-color: transparent; 
+    color: #fff;
+    font-size: 2em;
+}
+
+/* ✅ Total a Entregar */
+.positivo {
+    background-color: #090;
+    color: #fff;
+    font-weight: bold;
+}
+.negativo {
+    background-color: #b00;
+    color: #fff;
+    font-weight: bold;
 }
 
 .menu__inferior {
-  display: none;
+    display: none;
 }
 
 /* ======= ESTILOS PARA MÓVILES ======= */
@@ -282,10 +271,6 @@ body {
     .dashboard__titulo {
         font-size: 1.5em;
         color: #fff;
-    }
-
-    .titulo, .valor {
-        font-size: 1.4em;
     }
 
     .container__tabla {

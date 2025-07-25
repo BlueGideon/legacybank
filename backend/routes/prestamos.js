@@ -20,6 +20,49 @@ router.get('/por-solicitante/:nombre', async (req, res) => {
     }
 });
 
+// ✅ Total de ganancias acumuladas de préstamos SOLO para el fondo actual (corrigiendo fórmula)
+router.get("/total-ganancias", async (req, res) => {
+    try {
+        let { fondo_id } = req.query;
+
+        // ✅ Si no envían fondo_id, tomamos el fondo actual
+        if (!fondo_id) {
+            const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+            if (!fondoActual.length) {
+                return res.status(400).json({ mensaje: 'No hay fondo actual establecido' });
+            }
+            fondo_id = fondoActual[0].id;
+        }
+
+        const [pagos] = await db.query(`
+            SELECT pp.vpago, pr.valorInteres, pr.ncuotas, pr.selecciontasa
+            FROM pagos_prestamos pp
+            JOIN prestamos pr ON pp.idPrestamo = pr.id
+            WHERE pr.fondo_id = ?
+        `, [fondo_id]);
+
+        let totalGanancias = 0;
+
+        pagos.forEach(p => {
+            const valorPago = parseFloat(p.vpago) || 0;      // M20, P20...
+            const valorInteres = parseFloat(p.valorInteres) || 0; // H20
+            const tasa = p.selecciontasa
+                ? parseFloat(p.selecciontasa.replace("%", "")) / 100
+                : 0; // 2% → 0.02
+            const ncuotas = parseInt(p.ncuotas) || 0;        // G20
+
+            // ✅ Fórmula EXACTA: ((M20 - H20) + (P20 - H20)) * 2% * G20
+            // Como cada registro es un pago, se aplica (valorPago - valorInteres) * tasa * ncuotas
+            totalGanancias += ((valorPago - valorInteres) * tasa * ncuotas);
+        });
+
+        res.json({ totalGanancias });
+    } catch (error) {
+        console.error("Error calculando total de ganancias:", error);
+        res.status(500).json({ error: "Error en el cálculo de ganancias" });
+    }
+});
+
 
 // Crear nuevo préstamo
 router.post('/', async (req, res) => {

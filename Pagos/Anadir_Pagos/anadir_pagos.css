@@ -6,7 +6,7 @@ body {
 
 .container__principal {
     display: flex;
-    height: 100vh;
+    min-height: 100vh; /* mejor que height fija */
 }
 
 .menu__lateral {

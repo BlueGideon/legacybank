@@ -51,6 +51,32 @@ router.get('/moras', async (req, res) => {
     }
 });
 
+// ✅ Total de ahorros por participante en el fondo actual
+router.get('/totales-por-participante', async (req, res) => {
+    try {
+        // 1. Fondo actual
+        const [fondoActual] = await db.query(`SELECT id FROM fondos WHERE esActual = 'Si' LIMIT 1`);
+        if (!fondoActual.length) {
+            return res.status(400).json({ mensaje: "No hay fondo actual establecido" });
+        }
+        const fondoId = fondoActual[0].id;
+
+        // 2. Agrupar y sumar valores
+        const [totales] = await db.query(`
+            SELECT nombre, SUM(valor) AS totalAhorro
+            FROM pagos_ahorros
+            WHERE fondo_id = ?
+            GROUP BY nombre
+        `, [fondoId]);
+
+        res.json(totales);
+    } catch (err) {
+        console.error('❌ Error al obtener totales de ahorros:', err);
+        res.status(500).json({ mensaje: 'Error al obtener totales de ahorros' });
+    }
+});
+
+
 
 // Crear nuevo pago de ahorro con fondo_id
 router.post('/', async (req, res) => {

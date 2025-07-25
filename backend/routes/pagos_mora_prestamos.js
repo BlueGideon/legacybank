@@ -66,8 +66,6 @@ router.post('/', async (req, res) => {
             id_fondo = fondoRes[0].id;
         }
 
-        console.log("📌 Datos recibidos en backend (final):", { solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo });
-
         await db.query(
             `INSERT INTO pagos_mora_prestamos 
             (solicitante, fecha_pago, concepto, detalle, valor, id_pago_prestamo, id_fondo) 
