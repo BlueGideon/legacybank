@@ -2,6 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import db from './db.js'; // Asegúrate que db.js también exporte con `export default`
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 // Importar rutas
 import loginRoutes from './routes/login.js';
 import fondosRoutes from './routes/fondos.js';
@@ -39,6 +46,15 @@ app.use("/api/liquidaciones", liquidacionesRoutes);
 app.get('/', (req, res) => {
   res.send('Servidor backend funcionando correctamente');
 });
+
+// ✅ Servir archivos estáticos desde la raíz del proyecto (sube desde /backend)
+app.use(express.static(path.join(__dirname, '../')));
+
+// Si quieres que al abrir directamente el dominio cargue index.html:
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../index.html'));
+});
+
 
 // Iniciar el servidor
 app.listen(3000, '0.0.0.0', () => {

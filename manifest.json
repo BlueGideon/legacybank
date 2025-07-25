@@ -1,0 +1,15 @@
+{
+  "name": "LegacyBank Admin",
+  "short_name": "LegacyBank",
+  "start_url": "/Login/login.html",
+  "display": "standalone",
+  "background_color": "#203250",
+  "theme_color": "#203250",
+  "icons": [
+    {
+      "src": "/imagenes/iconoAppLB.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
